@@ -1663,25 +1663,58 @@ document.addEventListener('click', function(e) {
   if (e.target.id === 'fb-connect') {
     const raw = document.getElementById('fb-config-inp').value.trim();
     if (!raw) { setFbStatus('err','Paste your Firebase config first.'); return; }
-    // Sanitize: convert smart/curly quotes (iOS auto-format) to straight quotes
+    // Aggressive sanitize for iOS pastes: smart quotes, non-breaking spaces, zero-width chars
     const sanitized = raw
-      .replace(/[\u201C\u201D\u00AB\u00BB]/g, '"')
-      .replace(/[\u2018\u2019]/g, "'")
-      .replace(/[\u2013\u2014]/g, '-');
+      .replace(/[\u201C\u201D\u201E\u201F\u00AB\u00BB\u275D\u275E\u301D\u301E]/g, '"')
+      .replace(/[\u2018\u2019\u201A\u201B\u275B\u275C]/g, "'")
+      .replace(/[\u2013\u2014\u2015\u2212]/g, '-')
+      .replace(/[\u00A0\u2007\u202F\u2060]/g, ' ')
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      .replace(/^\uFEFF/, '');
+
+    let cfg = null;
+    let parseErr = null;
+
+    // Try strict JSON first
     try {
-      const cfg = JSON.parse(sanitized);
-      if (!cfg.databaseURL && cfg.projectId) {
-        cfg.databaseURL = 'https://'+cfg.projectId+'-default-rtdb.firebaseio.com';
+      cfg = JSON.parse(sanitized);
+    } catch(err1) {
+      parseErr = err1;
+      // Fallback: handle JS-style object (Firebase's raw format with unquoted keys)
+      // Add quotes around bare keys like  apiKey:  =>  "apiKey":
+      try {
+        const jsified = sanitized.replace(/([{,]\s*)([A-Za-z_$][A-Za-z0-9_$]*)\s*:/g, '$1"$2":');
+        cfg = JSON.parse(jsified);
+      } catch(err2) {
+        // Last resort: use Function constructor to eval a JS object literal
+        try {
+          cfg = (new Function('return (' + sanitized + ')'))();
+          if (typeof cfg !== 'object' || cfg === null) throw new Error('Not an object');
+        } catch(err3) {
+          cfg = null;
+        }
       }
-      saveFbConfig(cfg);
-      setFbStatus('warn','Connecting...');
-      initFirebase().then(ok => {
-        if (ok) setFbStatus('ok','Connected! Synced across devices.');
-        else setFbStatus('err','Could not connect. Check the config and try again.');
-      });
-    } catch(err) {
-      setFbStatus('err','That doesn\'t look like valid JSON. Tip: make sure quotes are straight ("not curly).');
     }
+
+    if (!cfg) {
+      setFbStatus('err','Couldn\'t parse the config. Try clearing the box and pasting fresh. Error: '+(parseErr&&parseErr.message||'unknown'));
+      return;
+    }
+
+    if (!cfg.apiKey || !cfg.projectId) {
+      setFbStatus('err','Config is missing apiKey or projectId. Re-copy from Firebase.');
+      return;
+    }
+
+    if (!cfg.databaseURL && cfg.projectId) {
+      cfg.databaseURL = 'https://'+cfg.projectId+'-default-rtdb.firebaseio.com';
+    }
+    saveFbConfig(cfg);
+    setFbStatus('warn','Connecting...');
+    initFirebase().then(ok => {
+      if (ok) setFbStatus('ok','Connected! Synced across devices.');
+      else setFbStatus('err','Could not connect. Check the database URL and try again.');
+    });
     return;
   }
   if (e.target.id === 'fb-disconnect') {
