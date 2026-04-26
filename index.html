@@ -217,6 +217,15 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 .wbadge.later{background:#94a3b830;color:#94a3b8;border:1px solid #94a3b840;}
 .wdel{background:none;border:none;color:#ffffff15;cursor:pointer;font-size:0.78rem;padding:0;flex-shrink:0;transition:color 0.2s;}
 .wdel:hover{color:var(--red);}
+.wed-filter-row{display:flex;gap:0.4rem;margin-bottom:0.6rem;flex-wrap:wrap;justify-content:center;}
+.wed-pill{background:var(--card2);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.9rem;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;transition:all 0.15s;}
+.wed-pill:hover{border-color:#ff8fb1;}
+.wed-pill.active{background:#ff8fb1;color:#fff;border-color:#ff8fb1;}
+.wed-summary{font-size:0.72rem;color:var(--muted);margin-bottom:0.7rem;text-align:center;font-weight:700;}
+.wed-summary span{display:inline-block;margin:0 0.45rem;}
+.wchip{font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;padding:0.18rem 0.55rem;border-radius:50px;flex-shrink:0;cursor:pointer;color:#0a0a14;border:none;font-family:'Nunito',sans-serif;}
+.wchip:hover{transform:scale(1.06);}
+.wempty-filter{color:var(--muted);font-size:0.78rem;font-style:italic;text-align:center;padding:0.6rem 0;}
 
 /* MODALS */
 .modal-bg{display:none;position:fixed;inset:0;background:#000c;z-index:200;align-items:center;justify-content:center;padding:1rem;}
@@ -539,6 +548,8 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
         <div class="prog-bar"><div class="prog-fill" id="wed-prog-fill" style="width:0%"></div></div>
       </div>
     </div>
+    <div class="wed-filter-row" id="wed-filter-row"></div>
+    <div class="wed-summary" id="wed-summary"></div>
     <div id="wed-cats"></div>
     <div class="add-form" style="margin-top:0.7rem;">
       <input id="wed-add-inp" placeholder="Add a custom item..." />
@@ -547,6 +558,11 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
         <option value="urgent">🔴 Urgent</option>
         <option value="soon" selected>🟡 Soon</option>
         <option value="later">⚪ Later</option>
+      </select>
+      <select id="wed-add-owner">
+        <option value="daniel" selected>👤 Daniel</option>
+        <option value="chardae">👤 Chardae</option>
+        <option value="delegated">👥 Delegated</option>
       </select>
       <button class="abtn abtn-w" id="wed-add-btn">+ Add Wedding Item</button>
     </div>
@@ -916,7 +932,7 @@ const WED_CATEGORIES = [
 
 function seedWeddingIfEmpty() {
   if (getG('wedding', null, 'venue', null).length) return;
-  const mk = (id,text,pri='soon') => ({id,text,pri,done:false});
+  const mk = (id,text,pri='soon',owner='daniel') => ({id,text,pri,done:false,owner});
   const items = {
     venue: [
       ['v1','Confirm ceremony venue booking','urgent'],
@@ -1272,8 +1288,43 @@ function renderSB() {
   });
 }
 
+// ─── WEDDING OWNERS ──────────────────────────────────────
+const WED_OWNERS = [
+  {id:'daniel',    label:'Daniel',    color:'#8ec5ff'},
+  {id:'chardae',   label:'Chardae',   color:'#ffb0cf'},
+  {id:'delegated', label:'Delegated', color:'#ffc987'},
+];
+let wedFilter = 'all';
+function ownerById(id){ return WED_OWNERS.find(o=>o.id===id) || WED_OWNERS[0]; }
+function nextOwnerId(id){
+  const idx = WED_OWNERS.findIndex(o=>o.id===id);
+  return WED_OWNERS[((idx<0?0:idx)+1) % WED_OWNERS.length].id;
+}
+function migrateWedOwners(){
+  WED_CATEGORIES.forEach(cat => {
+    const items = getG('wedding', null, cat.id, null);
+    let changed = false;
+    items.forEach(it => { if(!it.owner){ it.owner = 'daniel'; changed = true; } });
+    if (changed) {
+      setG('wedding', null, cat.id, null, items);
+      lsSave(skey('wedding', null, cat.id, null));
+    }
+  });
+}
+
+async function cycleWedOwner(catId, itemId){
+  const items = getG('wedding', null, catId, null);
+  const it = items.find(x=>x.id===itemId);
+  if(!it) return;
+  it.owner = nextOwnerId(it.owner || 'daniel');
+  setG('wedding', null, catId, null, items);
+  render();
+  await persistKey(skey('wedding', null, catId, null));
+}
+
 // ─── WEDDING RENDER ──────────────────────────────────────
 function renderWedding() {
+  migrateWedOwners();
   // Countdown
   const today = new Date();
   today.setHours(0,0,0,0);
@@ -1288,10 +1339,29 @@ function renderWedding() {
   cdHtml += '<div class="cd-box"><div class="cd-num">'+days+'</div><div class="cd-lbl">Days</div></div>';
   document.getElementById('wed-countdown').innerHTML = cdHtml;
 
-  // Overall progress
+  // Filter pills
+  const pillOpts = [{id:'all',label:'All'}, ...WED_OWNERS];
+  document.getElementById('wed-filter-row').innerHTML = pillOpts.map(o =>
+    '<button class="wed-pill'+(wedFilter===o.id?' active':'')+'" data-wed-filter="'+o.id+'">'+escHtml(o.label)+'</button>'
+  ).join('');
+
+  // Owner summary (always all owners)
+  const sumParts = WED_OWNERS.map(o => {
+    let d=0, a=0;
+    WED_CATEGORIES.forEach(cat => {
+      getG('wedding', null, cat.id, null).forEach(it => {
+        if ((it.owner||'daniel') === o.id) { a++; if (it.done) d++; }
+      });
+    });
+    return '<span style="color:'+o.color+'">'+escHtml(o.label)+': '+d+'/'+a+'</span>';
+  });
+  document.getElementById('wed-summary').innerHTML = sumParts.join('·');
+
+  // Overall progress (respects filter)
+  const matchOwner = it => wedFilter==='all' || (it.owner||'daniel')===wedFilter;
   let totalDone = 0, totalAll = 0;
   WED_CATEGORIES.forEach(cat => {
-    const items = getG('wedding', null, cat.id, null);
+    const items = getG('wedding', null, cat.id, null).filter(matchOwner);
     totalAll += items.length;
     totalDone += items.filter(i=>i.done).length;
   });
@@ -1302,16 +1372,19 @@ function renderWedding() {
   // Categories
   let html = '';
   WED_CATEGORIES.forEach(cat => {
-    const items = getG('wedding', null, cat.id, null);
+    const allItems = getG('wedding', null, cat.id, null);
+    const items = allItems.filter(matchOwner);
     const done = items.filter(i=>i.done).length;
     const catPct = items.length ? Math.round(done/items.length*100) : 0;
     const isOpen = openCats.has(cat.id);
 
     let itemsHtml = '<div class="cat-tip">'+escHtml(cat.tip)+'</div>';
-    if (!items.length) {
+    if (!allItems.length) {
       itemsHtml += '<div class="empty">No items yet.</div>';
+    } else if (!items.length) {
+      const lbl = wedFilter==='all' ? 'this filter' : ownerById(wedFilter).label;
+      itemsHtml += '<div class="wempty-filter">No tasks here for '+escHtml(lbl)+'.</div>';
     } else {
-      // Sort: not-done first, then by priority
       const priOrder = {urgent:0, soon:1, later:2};
       const sorted = items.slice().sort((a,b) => {
         if (a.done !== b.done) return a.done ? 1 : -1;
@@ -1319,9 +1392,12 @@ function renderWedding() {
       });
       sorted.forEach(it => {
         const priBadge = it.done ? '' : '<span class="wbadge '+(it.pri||'soon')+'">'+(it.pri||'soon')+'</span>';
+        const ow = ownerById(it.owner || 'daniel');
+        const chip = '<button class="wchip" data-wed-chip="'+it.id+'" data-cat="'+cat.id+'" style="background:'+ow.color+'">'+escHtml(ow.label)+'</button>';
         itemsHtml += '<div class="witem'+(it.done?' done':'')+'" data-wed-item="'+it.id+'" data-cat="'+cat.id+'">'
           + '<div class="wck">'+(it.done?'✓':'')+'</div>'
           + '<div class="wtxt">'+escHtml(it.text)+'</div>'
+          + chip
           + priBadge
           + '<button class="wdel" data-wed-del="'+it.id+'" data-cat="'+cat.id+'">✕</button>'
           + '</div>';
@@ -1368,10 +1444,12 @@ async function addWedItem() {
   const inp = document.getElementById('wed-add-inp');
   const cat = document.getElementById('wed-add-cat').value;
   const pri = document.getElementById('wed-add-pri').value;
+  const ownerSel = document.getElementById('wed-add-owner');
+  const owner = ownerSel ? ownerSel.value : (wedFilter !== 'all' ? wedFilter : 'daniel');
   const txt = inp.value.trim();
   if (!txt) { inp.focus(); return; }
   const items = getG('wedding', null, cat, null);
-  items.push({ id: 'w'+Date.now(), text: txt, pri, done: false });
+  items.push({ id: 'w'+Date.now(), text: txt, pri, done: false, owner });
   setG('wedding', null, cat, null, items);
   inp.value = '';
   openCats.add(cat);
@@ -1616,6 +1694,22 @@ document.addEventListener('click', function(e) {
     const id = catTog.dataset.toggleCat;
     if (openCats.has(id)) openCats.delete(id); else openCats.add(id);
     render();
+    return;
+  }
+
+  // Wedding filter pill
+  const wPill = e.target.closest('[data-wed-filter]');
+  if (wPill) {
+    wedFilter = wPill.dataset.wedFilter;
+    render();
+    return;
+  }
+
+  // Wedding owner chip cycle
+  const wChip = e.target.closest('[data-wed-chip]');
+  if (wChip) {
+    e.stopPropagation();
+    cycleWedOwner(wChip.dataset.cat, wChip.dataset.wedChip);
     return;
   }
 
