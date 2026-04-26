@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Goal Tracker">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f0f1a">
 <title>Daniel & Chardae 💍 Goal Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -583,7 +588,7 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
       <label>Cloud Sync (Firebase)</label>
       <div id="fb-status" class="status-row warn">Not connected. Data is local-only on this device.</div>
       <p class="mhint">Paste your Firebase config below to sync between your phone and Chardae's. Free forever for your usage. <a href="#" id="fb-help-link">How do I get this?</a></p>
-      <textarea id="fb-config-inp" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","databaseURL":"https://your-project-default-rtdb.firebaseio.com"}'></textarea>
+      <textarea id="fb-config-inp" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","databaseURL":"https://your-project-default-rtdb.firebaseio.com"}'></textarea>
 
       <div class="mbtns">
         <button class="myes" id="fb-connect">Connect Sync</button>
@@ -1634,7 +1639,10 @@ document.addEventListener('click', function(e) {
 
   // Settings
   if (e.target.id === 'open-settings') {
-    document.getElementById('fb-config-inp').value = JSON.stringify(loadFbConfig() || '', null, 2).replace(/^"|"$/g,'').replace(/\\n/g,'\n').replace(/\\"/g,'"');
+    const existingCfg = loadFbConfig();
+    document.getElementById('fb-config-inp').value = existingCfg ? JSON.stringify(existingCfg, null, 2) : '';
+    if (existingCfg) setFbStatus('ok','Currently connected.');
+    else setFbStatus('warn','Not connected. Data is local-only on this device.');
     document.getElementById('settings-modal').classList.add('open');
     return;
   }
@@ -1655,8 +1663,13 @@ document.addEventListener('click', function(e) {
   if (e.target.id === 'fb-connect') {
     const raw = document.getElementById('fb-config-inp').value.trim();
     if (!raw) { setFbStatus('err','Paste your Firebase config first.'); return; }
+    // Sanitize: convert smart/curly quotes (iOS auto-format) to straight quotes
+    const sanitized = raw
+      .replace(/[\u201C\u201D\u00AB\u00BB]/g, '"')
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u2013\u2014]/g, '-');
     try {
-      const cfg = JSON.parse(raw);
+      const cfg = JSON.parse(sanitized);
       if (!cfg.databaseURL && cfg.projectId) {
         cfg.databaseURL = 'https://'+cfg.projectId+'-default-rtdb.firebaseio.com';
       }
@@ -1667,7 +1680,7 @@ document.addEventListener('click', function(e) {
         else setFbStatus('err','Could not connect. Check the config and try again.');
       });
     } catch(err) {
-      setFbStatus('err','That doesn\'t look like valid JSON. Copy the whole {...} block.');
+      setFbStatus('err','That doesn\'t look like valid JSON. Tip: make sure quotes are straight ("not curly).');
     }
     return;
   }
