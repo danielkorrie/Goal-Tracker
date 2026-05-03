@@ -227,6 +227,47 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 .wchip:hover{transform:scale(1.06);}
 .wempty-filter{color:var(--muted);font-size:0.78rem;font-style:italic;text-align:center;padding:0.6rem 0;}
 
+/* BUDGET VIEW */
+.bud-goal-num{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;text-align:center;margin:0.4rem 0 0.2rem;}
+.bud-goal-sub{text-align:center;font-size:0.72rem;color:var(--muted);margin-bottom:0.6rem;}
+.bud-mini{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0.6rem 0.8rem;margin-bottom:0.4rem;}
+.bud-mini-row{display:flex;justify-content:space-between;font-size:0.78rem;font-weight:700;margin-bottom:0.3rem;}
+.bud-mini .prog-bar{height:6px;background:var(--card2);border-radius:50px;overflow:hidden;}
+.bud-mini .prog-fill{height:100%;border-radius:50px;transition:width 0.4s ease;}
+.bud-mini.daniel .prog-fill{background:linear-gradient(90deg,#6aa9ff,#8ec5ff);}
+.bud-mini.chardae .prog-fill{background:linear-gradient(90deg,#ff8ab4,#ffb0cf);}
+.bud-extras{display:flex;gap:0.4rem;margin-bottom:0.7rem;flex-wrap:wrap;}
+.bud-extra{flex:1;min-width:130px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0.55rem 0.7rem;}
+.bud-extra .lbl{font-size:0.66rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:800;}
+.bud-extra .num{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1.5px;margin-top:0.15rem;}
+.bud-extra.bonus .num{color:#7be0a8;}
+.bud-extra.spent .num{color:#ff6b6b;}
+.bud-card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:0.7rem;overflow:hidden;}
+.bud-card.contrib{border-left:3px solid #4ade80;}
+.bud-card.expense{border-left:3px solid #ff6b6b;}
+.bud-card-hdr{padding:0.65rem 0.85rem;background:var(--card2);font-family:'Bebas Neue',sans-serif;letter-spacing:1.5px;font-size:1rem;display:flex;justify-content:space-between;}
+.bud-card-body{padding:0.5rem 0.7rem;}
+.bud-card-body .empty{font-size:0.74rem;color:var(--muted);font-style:italic;padding:0.3rem 0.2rem;}
+.bud-row{display:flex;align-items:center;gap:0.55rem;padding:0.45rem 0.2rem;border-bottom:1px dashed var(--border);font-size:0.8rem;}
+.bud-row:last-child{border-bottom:none;}
+.bud-row .amt{font-weight:800;min-width:64px;}
+.bud-row .lbl{flex:1;font-weight:600;}
+.bud-row .who{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;background:var(--card2);padding:0.18rem 0.5rem;border-radius:50px;color:var(--muted);}
+.bud-row .del{background:none;border:none;color:#ffffff15;cursor:pointer;font-size:0.78rem;padding:0;}
+.bud-row .del:hover{color:var(--red);}
+.bud-card.contrib .amt{color:#4ade80;}
+.bud-card.expense .amt{color:#ff6b6b;}
+.bud-total{padding:0.55rem 0.85rem;background:var(--card2);font-weight:800;font-size:0.85rem;display:flex;justify-content:space-between;border-top:1px solid var(--border);}
+.bud-add{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:0.7rem;margin-top:0.5rem;}
+.bud-add-row{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;}
+.bud-add-row input,.bud-add-row select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.45rem 0.6rem;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.82rem;outline:none;flex:1;min-width:0;}
+.bud-add-row input.amt-inp{flex:0 0 100px;}
+.bud-kind-row{display:flex;gap:0.4rem;margin-bottom:0.5rem;}
+.bud-kind-pill{flex:1;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:0.5rem;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer;}
+.bud-kind-pill.active.contrib-pill{background:#4ade80;color:#000;border-color:#4ade80;}
+.bud-kind-pill.active.expense-pill{background:#ff6b6b;color:#000;border-color:#ff6b6b;}
+.bud-add .abtn{width:100%;}
+
 /* MODALS */
 .modal-bg{display:none;position:fixed;inset:0;background:#000c;z-index:200;align-items:center;justify-content:center;padding:1rem;}
 .modal-bg.open{display:flex;}
@@ -551,7 +592,7 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
     <div class="wed-filter-row" id="wed-filter-row"></div>
     <div class="wed-summary" id="wed-summary"></div>
     <div id="wed-cats"></div>
-    <div class="add-form" style="margin-top:0.7rem;">
+    <div class="add-form" id="wed-add-form" style="margin-top:0.7rem;">
       <input id="wed-add-inp" placeholder="Add a custom item..." />
       <select id="wed-add-cat"></select>
       <select id="wed-add-pri">
@@ -565,6 +606,68 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
         <option value="delegated">👥 Delegated</option>
       </select>
       <button class="abtn abtn-w" id="wed-add-btn">+ Add Wedding Item</button>
+    </div>
+
+    <!-- BUDGET PANEL -->
+    <div id="wed-budget" style="display:none;">
+      <div class="bud-goal-num" id="bud-combined-num">$0 of $14,000</div>
+      <div class="bud-goal-sub">Combined goal · by Aug 1, 2026</div>
+      <div class="prog-bar" style="height:8px;margin-bottom:0.9rem;"><div class="prog-fill" id="bud-combined-fill" style="width:0%;background:linear-gradient(90deg,#6aa9ff,#ff8ab4);"></div></div>
+
+      <div class="bud-mini daniel">
+        <div class="bud-mini-row"><span>👤 Daniel</span><span id="bud-daniel-num">$0 / $7,000</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="bud-daniel-fill" style="width:0%"></div></div>
+      </div>
+      <div class="bud-mini chardae">
+        <div class="bud-mini-row"><span>👤 Chardae</span><span id="bud-chardae-num">$0 / $7,000</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="bud-chardae-fill" style="width:0%"></div></div>
+      </div>
+
+      <div class="bud-extras">
+        <div class="bud-extra bonus">
+          <div class="lbl">🎁 Family & Friends</div>
+          <div class="num" id="bud-bonus-num">+ $0</div>
+        </div>
+        <div class="bud-extra spent">
+          <div class="lbl">💸 Spent so far</div>
+          <div class="num" id="bud-spent-num">− $0</div>
+        </div>
+      </div>
+
+      <button class="abtn abtn-w" id="bud-export-btn" style="margin-bottom:0.7rem;">📥 Export to CSV</button>
+
+      <div class="bud-card contrib">
+        <div class="bud-card-hdr"><span>Contributions</span><span id="bud-contrib-cnt">0</span></div>
+        <div class="bud-card-body" id="bud-contrib-list"></div>
+        <div class="bud-total"><span>Total in</span><span id="bud-contrib-total">+ $0</span></div>
+      </div>
+
+      <div class="bud-card expense">
+        <div class="bud-card-hdr"><span>Expenses</span><span id="bud-expense-cnt">0</span></div>
+        <div class="bud-card-body" id="bud-expense-list"></div>
+        <div class="bud-total"><span>Total out</span><span id="bud-expense-total">− $0</span></div>
+      </div>
+
+      <div class="bud-add">
+        <div class="bud-kind-row">
+          <button class="bud-kind-pill contrib-pill active" data-bud-kind-toggle="contrib">+ Contribution</button>
+          <button class="bud-kind-pill expense-pill" data-bud-kind-toggle="expense">− Expense</button>
+        </div>
+        <div class="bud-add-row">
+          <input class="amt-inp" id="bud-amt" type="number" min="0" step="0.01" inputmode="decimal" placeholder="$" />
+          <input id="bud-label" type="text" placeholder="Label (e.g., Paycheck)" />
+        </div>
+        <div class="bud-add-row">
+          <select id="bud-who">
+            <option value="Daniel">👤 Daniel</option>
+            <option value="Chardae">👤 Chardae</option>
+            <option value="Family/Friends">🎁 Family/Friends</option>
+            <option value="__custom__">✏️ Custom name…</option>
+          </select>
+          <input id="bud-who-custom" type="text" placeholder="Custom name" style="display:none;" />
+        </div>
+        <button class="abtn abtn-w" id="bud-add-btn">+ Add Entry</button>
+      </div>
     </div>
   </div>
 
@@ -1026,6 +1129,35 @@ function seedWeddingIfEmpty() {
   }
 }
 
+// Daniel's personal task list (added on top of seed; re-runs only insert missing IDs)
+function seedDanielTasks() {
+  const TASKS = [
+    {cat:'attire',    id:'dk-tux',     text:'Find and purchase tuxedo (by May 2)',                                pri:'urgent'},
+    {cat:'honeymoon', id:'dk-passport',text:'Get passport at post office (by May 2)',                             pri:'urgent'},
+    {cat:'vendors',   id:'dk-photo',   text:'Find photographer & videographer (by May 2)',                        pri:'urgent'},
+    {cat:'vendors',   id:'dk-dj',      text:'Choose DJ and MC (by May 10)',                                       pri:'urgent'},
+    {cat:'reception', id:'dk-dance',   text:'Have our dances choreographed (by June 7)',                          pri:'soon'},
+    {cat:'attire',    id:'dk-rings',   text:'Buy two wedding bands (by July 5)',                                  pri:'soon'},
+    {cat:'reception', id:'dk-cupcakes',text:'Order cupcakes for July 31 pickup (by July 11)',                     pri:'soon'},
+    {cat:'reception', id:'dk-qr',      text:'Print QR for photo uploads + buy Polaroid film (by July 18)',        pri:'soon'},
+    {cat:'reception', id:'dk-dinner',  text:'Purchase wedding dinnerware (by July 18)',                           pri:'soon'},
+    {cat:'reception', id:'dk-games',   text:'Come up with reception games (by July 18)',                          pri:'soon'},
+    {cat:'final',     id:'dk-haircut', text:'Get a haircut (by July 30)',                                         pri:'urgent'},
+    {cat:'reception', id:'dk-salad',   text:'Make salad for reception (by July 31)',                              pri:'urgent'},
+    {cat:'reception', id:'dk-drinks',  text:'Get drinks for reception (by July 31)',                              pri:'urgent'},
+  ];
+  const touched = new Set();
+  TASKS.forEach(t => {
+    const items = getG('wedding', null, t.cat, null);
+    if (items.find(x => x.id === t.id)) return;
+    items.push({id:t.id, text:t.text, pri:t.pri, done:false, owner:'daniel'});
+    setG('wedding', null, t.cat, null, items);
+    touched.add(t.cat);
+  });
+  touched.forEach(cat => lsSave(skey('wedding', null, cat, null)));
+  return touched;
+}
+
 // ─── POINTS ──────────────────────────────────────────────
 function statusPts(g) {
   if (g.status === 'done')    return g.maxPts || g.pts;
@@ -1295,6 +1427,39 @@ const WED_OWNERS = [
   {id:'delegated', label:'Delegated', color:'#ffc987'},
 ];
 let wedFilter = 'all';
+let wedView = 'tasks'; // 'tasks' | 'budget'
+let budKind = 'contrib'; // current add-form kind
+const WED_BUDGET_PER_PERSON = 7000;
+const WED_BUDGET_TOTAL = WED_BUDGET_PER_PERSON * 2;
+const WED_PRESET_WHO = ['Daniel', 'Chardae', 'Family/Friends'];
+
+function fmtMoney(n) {
+  const sign = n < 0 ? '-' : '';
+  const v = Math.abs(n);
+  return sign + '$' + v.toLocaleString('en-US', {minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2});
+}
+function getBudgetList(kind) {
+  return getG('wedding', null, 'budget-' + kind, null);
+}
+function setBudgetList(kind, list) {
+  setG('wedding', null, 'budget-' + kind, null, list);
+}
+async function persistBudget(kind) {
+  await persistKey(skey('wedding', null, 'budget-' + kind, null));
+}
+async function addBudgetEntry(kind, amount, label, who) {
+  const list = getBudgetList(kind);
+  list.push({ id: kind[0]+'-'+Date.now(), amount: +amount, label: label || '', who: who || 'Daniel' });
+  setBudgetList(kind, list);
+  render();
+  await persistBudget(kind);
+}
+async function delBudgetEntry(kind, id) {
+  const list = getBudgetList(kind).filter(x => x.id !== id);
+  setBudgetList(kind, list);
+  render();
+  await persistBudget(kind);
+}
 function ownerById(id){ return WED_OWNERS.find(o=>o.id===id) || WED_OWNERS[0]; }
 function nextOwnerId(id){
   const idx = WED_OWNERS.findIndex(o=>o.id===id);
@@ -1323,6 +1488,55 @@ async function cycleWedOwner(catId, itemId){
 }
 
 // ─── WEDDING RENDER ──────────────────────────────────────
+function renderBudget() {
+  const contribs = getBudgetList('contrib');
+  const expenses = getBudgetList('expense');
+
+  let danielSum = 0, chardaeSum = 0, bonusSum = 0;
+  contribs.forEach(c => {
+    if (c.who === 'Daniel') danielSum += +c.amount || 0;
+    else if (c.who === 'Chardae') chardaeSum += +c.amount || 0;
+    else bonusSum += +c.amount || 0;
+  });
+  const expenseSum = expenses.reduce((s,e)=>s + (+e.amount||0), 0);
+  const combinedSaved = danielSum + chardaeSum + bonusSum - expenseSum;
+  const combinedPct = Math.max(0, Math.min(100, Math.round(combinedSaved / WED_BUDGET_TOTAL * 100)));
+  const danielPct = Math.max(0, Math.min(100, Math.round(danielSum / WED_BUDGET_PER_PERSON * 100)));
+  const chardaePct = Math.max(0, Math.min(100, Math.round(chardaeSum / WED_BUDGET_PER_PERSON * 100)));
+
+  document.getElementById('bud-combined-num').textContent = fmtMoney(combinedSaved) + ' of ' + fmtMoney(WED_BUDGET_TOTAL);
+  document.getElementById('bud-combined-fill').style.width = combinedPct + '%';
+  document.getElementById('bud-daniel-num').textContent = fmtMoney(danielSum) + ' / ' + fmtMoney(WED_BUDGET_PER_PERSON);
+  document.getElementById('bud-daniel-fill').style.width = danielPct + '%';
+  document.getElementById('bud-chardae-num').textContent = fmtMoney(chardaeSum) + ' / ' + fmtMoney(WED_BUDGET_PER_PERSON);
+  document.getElementById('bud-chardae-fill').style.width = chardaePct + '%';
+  document.getElementById('bud-bonus-num').textContent = '+ ' + fmtMoney(bonusSum);
+  document.getElementById('bud-spent-num').textContent = '- ' + fmtMoney(expenseSum);
+
+  function rowsHtml(list, kind) {
+    if (!list.length) return '<div class="empty">No entries yet.</div>';
+    return list.slice().reverse().map(e =>
+      '<div class="bud-row">'
+      + '<span class="amt">'+(kind==='expense'?'-':'+')+' '+fmtMoney(+e.amount||0).replace('-','')+'</span>'
+      + '<span class="lbl">'+escHtml(e.label||'')+'</span>'
+      + '<span class="who">'+escHtml(e.who||'')+'</span>'
+      + '<button class="del" data-bud-del="'+e.id+'" data-bud-kind="'+kind+'">✕</button>'
+      + '</div>'
+    ).join('');
+  }
+  document.getElementById('bud-contrib-list').innerHTML = rowsHtml(contribs, 'contrib');
+  document.getElementById('bud-expense-list').innerHTML = rowsHtml(expenses, 'expense');
+  document.getElementById('bud-contrib-cnt').textContent = contribs.length;
+  document.getElementById('bud-expense-cnt').textContent = expenses.length;
+  document.getElementById('bud-contrib-total').textContent = '+ ' + fmtMoney(danielSum + chardaeSum + bonusSum);
+  document.getElementById('bud-expense-total').textContent = '- ' + fmtMoney(expenseSum);
+
+  // Kind pill state
+  document.querySelectorAll('[data-bud-kind-toggle]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.budKindToggle === budKind);
+  });
+}
+
 function renderWedding() {
   migrateWedOwners();
   // Countdown
@@ -1339,11 +1553,21 @@ function renderWedding() {
   cdHtml += '<div class="cd-box"><div class="cd-num">'+days+'</div><div class="cd-lbl">Days</div></div>';
   document.getElementById('wed-countdown').innerHTML = cdHtml;
 
-  // Filter pills
+  // Filter pills (owners) + Budget toggle pill
   const pillOpts = [{id:'all',label:'All'}, ...WED_OWNERS];
-  document.getElementById('wed-filter-row').innerHTML = pillOpts.map(o =>
-    '<button class="wed-pill'+(wedFilter===o.id?' active':'')+'" data-wed-filter="'+o.id+'">'+escHtml(o.label)+'</button>'
+  const ownerPills = pillOpts.map(o =>
+    '<button class="wed-pill'+(wedView==='tasks' && wedFilter===o.id?' active':'')+'" data-wed-filter="'+o.id+'">'+escHtml(o.label)+'</button>'
   ).join('');
+  const budPill = '<button class="wed-pill'+(wedView==='budget'?' active':'')+'" data-wed-view="budget">💰 Budget</button>';
+  document.getElementById('wed-filter-row').innerHTML = ownerPills + budPill;
+
+  // View branching: budget view hides task UI
+  const isBudget = wedView === 'budget';
+  document.getElementById('wed-summary').style.display = isBudget ? 'none' : '';
+  document.getElementById('wed-cats').style.display = isBudget ? 'none' : '';
+  document.getElementById('wed-add-form').style.display = isBudget ? 'none' : '';
+  document.getElementById('wed-budget').style.display = isBudget ? 'block' : 'none';
+  if (isBudget) { renderBudget(); return; }
 
   // Owner summary (always all owners)
   const sumParts = WED_OWNERS.map(o => {
@@ -1620,6 +1844,43 @@ function exportData() {
   URL.revokeObjectURL(url);
 }
 
+function exportBudgetCSV() {
+  const csvEscape = v => {
+    const s = String(v == null ? '' : v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+  };
+  const rows = [['Type','Amount','Label','Who','Date Added']];
+  const stamp = id => {
+    // ids look like 'c-1714000000000' — pull the timestamp out
+    const m = String(id||'').match(/-(\d{10,})$/);
+    return m ? new Date(+m[1]).toISOString().slice(0,10) : '';
+  };
+  getBudgetList('contrib').forEach(e => rows.push(['Contribution', (+e.amount||0).toFixed(2), e.label||'', e.who||'', stamp(e.id)]));
+  getBudgetList('expense').forEach(e => rows.push(['Expense',     (+e.amount||0).toFixed(2), e.label||'', e.who||'', stamp(e.id)]));
+  // Totals row
+  let dSum=0,cSum=0,bSum=0,xSum=0;
+  getBudgetList('contrib').forEach(e => {
+    const a = +e.amount||0;
+    if (e.who==='Daniel') dSum+=a; else if (e.who==='Chardae') cSum+=a; else bSum+=a;
+  });
+  getBudgetList('expense').forEach(e => xSum += +e.amount||0);
+  rows.push([]);
+  rows.push(['SUMMARY','','','','']);
+  rows.push(['Daniel toward $7,000', dSum.toFixed(2),'','','']);
+  rows.push(['Chardae toward $7,000', cSum.toFixed(2),'','','']);
+  rows.push(['Family & Friends bonus', bSum.toFixed(2),'','','']);
+  rows.push(['Spent', xSum.toFixed(2),'','','']);
+  rows.push(['Saved (combined - spent)', (dSum+cSum+bSum-xSum).toFixed(2),'','','']);
+  const csv = rows.map(r => r.map(csvEscape).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'wedding-budget-' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
 function importData(file) {
   const reader = new FileReader();
   reader.onload = async (e) => {
@@ -1697,11 +1958,58 @@ document.addEventListener('click', function(e) {
     return;
   }
 
-  // Wedding filter pill
+  // Wedding filter pill (owner) — also returns to task view
   const wPill = e.target.closest('[data-wed-filter]');
   if (wPill) {
     wedFilter = wPill.dataset.wedFilter;
+    wedView = 'tasks';
     render();
+    return;
+  }
+
+  // Wedding view toggle (Budget pill)
+  const wView = e.target.closest('[data-wed-view]');
+  if (wView) {
+    wedView = wView.dataset.wedView;
+    render();
+    return;
+  }
+
+  // Budget kind toggle
+  const bKind = e.target.closest('[data-bud-kind-toggle]');
+  if (bKind) {
+    budKind = bKind.dataset.budKindToggle;
+    document.querySelectorAll('[data-bud-kind-toggle]').forEach(b => b.classList.toggle('active', b===bKind));
+    return;
+  }
+
+  // Budget delete
+  const bDel = e.target.closest('[data-bud-del]');
+  if (bDel) {
+    delBudgetEntry(bDel.dataset.budKind, bDel.dataset.budDel);
+    return;
+  }
+
+  // Budget export
+  if (e.target.id === 'bud-export-btn') { exportBudgetCSV(); return; }
+
+  // Budget add
+  if (e.target.id === 'bud-add-btn') {
+    const amt = parseFloat(document.getElementById('bud-amt').value);
+    const label = document.getElementById('bud-label').value.trim();
+    const whoSel = document.getElementById('bud-who');
+    let who = whoSel.value;
+    if (who === '__custom__') {
+      who = (document.getElementById('bud-who-custom').value || '').trim();
+      if (!who) { document.getElementById('bud-who-custom').focus(); return; }
+    }
+    if (!amt || amt <= 0) { document.getElementById('bud-amt').focus(); return; }
+    addBudgetEntry(budKind, amt, label, who);
+    document.getElementById('bud-amt').value = '';
+    document.getElementById('bud-label').value = '';
+    document.getElementById('bud-who-custom').value = '';
+    document.getElementById('bud-who-custom').style.display = 'none';
+    whoSel.value = 'Daniel';
     return;
   }
 
@@ -1860,6 +2168,7 @@ async function init() {
   lsLoad();
   seedIfEmpty();
   seedWeddingIfEmpty();
+  const newCats = seedDanielTasks();
 
   // Try Firebase if configured
   if (loadFbConfig()) {
@@ -1872,6 +2181,23 @@ async function init() {
 
   document.getElementById('loading').style.display = 'none';
   render();
+
+  // Wire budget who-select to toggle the custom-name input
+  const whoSel = document.getElementById('bud-who');
+  if (whoSel) {
+    whoSel.addEventListener('change', () => {
+      const cust = document.getElementById('bud-who-custom');
+      cust.style.display = whoSel.value === '__custom__' ? 'block' : 'none';
+      if (whoSel.value === '__custom__') cust.focus();
+    });
+  }
+
+  // Push any newly added Daniel tasks up to Firebase if connected
+  if (newCats && newCats.size) {
+    for (const cat of newCats) {
+      try { await persistKey(skey('wedding', null, cat, null)); } catch(_) {}
+    }
+  }
 }
 
 init();
