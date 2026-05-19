@@ -437,7 +437,8 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
     </div>
     <div id="today-list"></div>
     <div class="add-form" style="margin-top:0.7rem;">
-      <input id="today-add-inp" placeholder="Add today's goal..." />
+      <input id="today-add-inp" placeholder="Add a goal..." />
+      <select id="today-add-day" title="Plan for a future day"></select>
       <button class="abtn abtn-w" id="today-add-btn">+ Add</button>
     </div>
     <div class="past-days-wrap" id="past-days-wrap"></div>
@@ -1509,6 +1510,30 @@ function isoAddDays(iso, n) {
   dt.setDate(dt.getDate() + n);
   return todayISO(dt);
 }
+const WEEKDAY_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const WEEKDAY_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function weekDates() {
+  // Returns Mon-Sun of the calendar week containing today
+  const now = new Date();
+  const dow = now.getDay(); // 0=Sun
+  const offsetToMon = dow === 0 ? -6 : 1 - dow;
+  const monday = new Date(now);
+  monday.setDate(monday.getDate() + offsetToMon);
+  monday.setHours(0,0,0,0);
+  const dates = [];
+  for (let i=0; i<7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    dates.push({
+      iso: todayISO(d),
+      short: WEEKDAY_SHORT[d.getDay()],
+      full: WEEKDAY_FULL[d.getDay()] + ' ' + MONTH_SHORT[d.getMonth()] + ' ' + d.getDate(),
+      isToday: todayISO(d) === todayISO()
+    });
+  }
+  return dates;
+}
 function getTodayList(date) {
   const me = getMe();
   if (!me) return [];
@@ -1553,13 +1578,32 @@ async function rollTodayForward() {
   setLastRoll(today);
 }
 
-async function addTodayItem(text) {
-  const date = todayISO();
+async function addTodayItem(text, targetDate) {
+  const today = todayISO();
+  const date = targetDate || today;
   const list = getTodayList(date);
   list.push({ id: 't-' + Date.now(), text: text, done: false });
   setTodayListData(date, list);
   render();
   await persistToday(date);
+  // Toast confirm only when planning for a different day
+  if (date !== today) {
+    const wk = weekDates().find(w => w.iso === date);
+    const label = wk ? wk.full : date;
+    showAddToast('✓ Added to ' + label);
+  }
+}
+function showAddToast(msg) {
+  // Reuse the bottom toast slot (no Undo action — auto-fades)
+  const t = document.getElementById('toast');
+  if (!t) return;
+  const msgEl = document.getElementById('toast-msg');
+  const btn = document.getElementById('toast-action');
+  if (msgEl) msgEl.textContent = msg;
+  if (btn) btn.style.display = 'none';
+  t.classList.add('show');
+  clearTimeout(showAddToast._t);
+  showAddToast._t = setTimeout(() => t.classList.remove('show'), 2200);
 }
 async function toggleTodayItem(id) {
   const date = todayISO();
@@ -1572,8 +1616,8 @@ async function toggleTodayItem(id) {
   await persistToday(date);
   if (it.done) doBurst();
 }
-async function delTodayItem(id) {
-  const date = todayISO();
+async function delTodayItem(id, dateOverride) {
+  const date = dateOverride || todayISO();
   const list = getTodayList(date).filter(x => x.id !== id);
   setTodayListData(date, list);
   render();
@@ -1592,7 +1636,7 @@ function pastDatesWithLists(limit) {
     if (!k || !k.startsWith(prefix) || !k.endsWith(suffix)) continue;
     const date = k.slice(prefix.length, k.length - suffix.length);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
-    if (date === today) continue;
+    if (date >= today) continue; // exclude today AND future days (those go in 'week ahead')
     found.push(date);
   }
   return found.sort().reverse().slice(0, limit || 14);
@@ -1636,12 +1680,51 @@ function renderToday() {
   }
   document.getElementById('today-list').innerHTML = html;
 
-  // Past days
+  // Populate the day-select with this week's days
+  const sel = document.getElementById('today-add-day');
+  if (sel) {
+    const cur = sel.value;
+    sel.innerHTML = '';
+    weekDates().forEach(w => {
+      const opt = document.createElement('option');
+      opt.value = w.iso;
+      opt.textContent = w.isToday ? 'Today (' + w.short + ' ' + w.iso.slice(8) + ')' : w.short + ' ' + w.iso.slice(8);
+      sel.appendChild(opt);
+    });
+    sel.value = (cur && weekDates().some(w => w.iso === cur)) ? cur : todayISO();
+  }
+
+  // Upcoming this week (future days with items)
+  const today = todayISO();
+  const week = weekDates();
+  const upcoming = week.filter(w => w.iso > today && getTodayList(w.iso).length);
   const past = pastDatesWithLists(14);
+
   let pastHtml = '';
+  if (upcoming.length) {
+    pastHtml += '<div class="past-hdr">📅 This week ahead ('+upcoming.length+')</div>';
+    upcoming.forEach(w => {
+      const its = getTodayList(w.iso);
+      const isOpen = expandedPastDay === w.iso;
+      pastHtml += '<div class="past-day" data-past-day="'+w.iso+'">'
+        + '<div><div class="pd-date">'+escHtml(w.full)+'</div>'+(isOpen?'<div class="pd-stat">tap to collapse</div>':'')+'</div>'
+        + '<div class="pd-stat">'+its.length+' planned</div>'
+        + '</div>';
+      if (isOpen) {
+        its.forEach(it => {
+          pastHtml += '<div class="titem'+(it.done?' done':'')+'" style="opacity:0.75;">'
+            + '<div class="tck">'+(it.done?'✓':'')+'</div>'
+            + '<div class="ttxt">'+escHtml(it.text||'')+'</div>'
+            + '<button class="tdel" data-today-del="'+it.id+'" data-today-date="'+w.iso+'">✕</button>'
+            + '</div>';
+        });
+      }
+    });
+  }
+
   if (past.length) {
-    pastHtml += '<div class="past-hdr" data-toggle-past>▾ Past days ('+past.length+')</div>';
-    if (expandedPastDay !== null) {
+    pastHtml += '<div class="past-hdr" data-toggle-past>'+(expandedPastDay==='PAST_OPEN'?'▴':'▾')+' Past days ('+past.length+')</div>';
+    if (expandedPastDay === 'PAST_OPEN' || past.some(pd => pd === expandedPastDay)) {
       past.forEach(pd => {
         const its = getTodayList(pd);
         const d = its.filter(x=>x.done).length;
@@ -2317,34 +2400,40 @@ document.addEventListener('click', function(e) {
     return;
   }
 
-  // Today: item delete
+  // Today: item delete (supports per-date override for week-ahead peek)
   const tDel = e.target.closest('[data-today-del]');
   if (tDel) {
     e.stopPropagation();
-    delTodayItem(tDel.dataset.todayDel);
+    delTodayItem(tDel.dataset.todayDel, tDel.dataset.todayDate || null);
     return;
   }
 
-  // Today: add
+  // Today: add (optionally to a future day this week)
   if (e.target.id === 'today-add-btn') {
     const inp = document.getElementById('today-add-inp');
+    const sel = document.getElementById('today-add-day');
     const txt = inp.value.trim();
     if (!txt) { inp.focus(); return; }
-    addTodayItem(txt);
+    const target = sel ? sel.value : todayISO();
+    addTodayItem(txt, target);
     inp.value = '';
+    // Reset day select back to today so the user isn't accidentally still on Friday
+    if (sel) sel.value = todayISO();
+    inp.focus();
     return;
   }
 
-  // Today: past day expand
+  // Today: past day header expand/collapse
   if (e.target.closest('[data-toggle-past]')) {
-    expandedPastDay = expandedPastDay ? null : 'OPEN';
+    expandedPastDay = (expandedPastDay === 'PAST_OPEN') ? null : 'PAST_OPEN';
     render();
     return;
   }
+  // Today: individual past-or-future day expand
   const pd = e.target.closest('[data-past-day]');
   if (pd) {
     const date = pd.dataset.pastDay;
-    expandedPastDay = (expandedPastDay === date) ? 'OPEN' : date;
+    expandedPastDay = (expandedPastDay === date) ? 'PAST_OPEN' : date;
     render();
     return;
   }
