@@ -51,6 +51,7 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 .tab:hover{color:var(--text);}
 .tab.active{background:linear-gradient(135deg,var(--d),var(--c));color:#fff;}
 .tab.wedding.active{background:linear-gradient(135deg,#ff8fb1,#ffd6e6);color:#5a1a30;}
+.tab.today.active{background:linear-gradient(135deg,#a78bff,#d8c4ff);color:#1a1030;}
 
 /* CALENDAR */
 .cal{background:var(--card2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:0.7rem 1rem;}
@@ -227,6 +228,39 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 .wchip:hover{transform:scale(1.06);}
 .wempty-filter{color:var(--muted);font-size:0.78rem;font-style:italic;text-align:center;padding:0.6rem 0;}
 
+/* TODAY VIEW */
+.today-hero{background:linear-gradient(135deg,#a78bff,#6aa9ff);border-radius:18px;padding:1.1rem;text-align:center;margin-bottom:1rem;color:#fff;}
+.today-who{font-size:0.78rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;opacity:0.9;margin-bottom:0.2rem;}
+.today-date{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:2px;}
+.today-prog{margin-top:0.6rem;}
+.today-prog-lbl{font-size:0.72rem;text-align:left;margin-bottom:0.3rem;font-weight:700;}
+.today-prog .prog-bar{background:#ffffff30;border-radius:50px;overflow:hidden;}
+.today-prog .prog-fill{height:100%;border-radius:50px;transition:width 0.4s ease;}
+.titem{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:0.55rem 0.7rem;margin-bottom:0.4rem;display:flex;align-items:center;gap:0.55rem;cursor:pointer;transition:all 0.15s;}
+.titem:hover{border-color:#a78bff;}
+.titem.done{opacity:0.55;}
+.titem.done .ttxt{text-decoration:line-through;}
+.tck{width:20px;height:20px;border-radius:6px;border:2px solid #a78bff;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;}
+.titem.done .tck{background:#a78bff;color:#fff;}
+.ttxt{flex:1;font-size:0.83rem;font-weight:600;display:flex;flex-direction:column;}
+.tcarry{font-size:0.6rem;color:var(--muted);font-style:italic;margin-top:0.15rem;}
+.tdel{background:none;border:none;color:#ffffff15;cursor:pointer;font-size:0.78rem;padding:0;flex-shrink:0;transition:color 0.2s;}
+.tdel:hover{color:var(--red);}
+.past-days-wrap{margin-top:1.2rem;}
+.past-hdr{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:800;padding:0.4rem 0.2rem;cursor:pointer;}
+.past-day{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:0.5rem 0.7rem;margin-bottom:0.3rem;display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;}
+.past-day .pd-date{font-weight:700;}
+.past-day .pd-stat{color:var(--muted);font-size:0.72rem;}
+
+/* IDENTITY PICKER */
+.me-pick-row{display:flex;gap:0.7rem;margin-top:0.6rem;}
+.identity-btn{flex:1;background:var(--card2);border:2px solid var(--border);color:var(--text);padding:1.2rem 0.5rem;border-radius:14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;line-height:1.4;transition:all 0.15s;}
+.identity-btn:hover{transform:translateY(-2px);}
+.identity-btn.d-btn{border-color:var(--d);}
+.identity-btn.d-btn:hover{background:linear-gradient(135deg,var(--d),#8ec5ff);color:#fff;}
+.identity-btn.c-btn{border-color:var(--c);}
+.identity-btn.c-btn:hover{background:linear-gradient(135deg,var(--c),#ffb0cf);color:#fff;}
+
 /* BUDGET VIEW */
 .bud-goal-num{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;text-align:center;margin:0.4rem 0 0.2rem;}
 .bud-goal-sub{text-align:center;font-size:0.72rem;color:var(--muted);margin-bottom:0.6rem;}
@@ -344,11 +378,12 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 </header>
 
 <div class="tabs" id="tabs">
-  <button class="tab active" data-view="weekly">📅 Weekly</button>
+  <button class="tab today active" data-view="today">📋 Today</button>
+  <button class="tab" data-view="weekly">📅 Weekly</button>
   <button class="tab" data-view="monthly">📆 Monthly</button>
   <button class="tab" data-view="yearly">🎯 Yearly</button>
-  <button class="tab" data-view="scoreboard">🏆 Scoreboard</button>
   <button class="tab wedding" data-view="wedding">💍 Wedding</button>
+  <button class="tab" data-view="scoreboard">🏆 Scoreboard</button>
 </div>
 
 <div class="cal" id="cal-wrap"><div class="cal-row" id="cal-row"></div></div>
@@ -390,8 +425,26 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 
 <div class="main">
 
+  <!-- TODAY VIEW -->
+  <div class="view active" id="view-today">
+    <div class="today-hero">
+      <div class="today-who" id="today-who">👤 My Today</div>
+      <div class="today-date" id="today-date">—</div>
+      <div class="today-prog">
+        <div class="today-prog-lbl"><span id="today-prog-cnt">0 / 0 done</span></div>
+        <div class="prog-bar" style="height:6px;"><div class="prog-fill" id="today-prog-fill" style="width:0%;background:#fff;"></div></div>
+      </div>
+    </div>
+    <div id="today-list"></div>
+    <div class="add-form" style="margin-top:0.7rem;">
+      <input id="today-add-inp" placeholder="Add today's goal..." />
+      <button class="abtn abtn-w" id="today-add-btn">+ Add</button>
+    </div>
+    <div class="past-days-wrap" id="past-days-wrap"></div>
+  </div>
+
   <!-- WEEKLY VIEW -->
-  <div class="view active" id="view-weekly">
+  <div class="view" id="view-weekly">
     <div class="notice"><strong>📅 Weekly Homework</strong> · Up to <strong>5 pts</strong> each · Points stack toward monthly &amp; yearly · Week: <span id="wk-notice">—</span></div>
     <div class="legend">
       <div class="lpill"><span class="big">5</span>Done ✅</div>
@@ -704,7 +757,13 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
     <p>Sync between devices, manage your data.</p>
 
     <div class="left">
-      <label>Cloud Sync (Firebase)</label>
+      <label>This Device</label>
+      <div class="status-row" id="me-row">
+        <span>Logged in as <strong id="me-current">—</strong></span>
+        <button class="mno" style="float:right;padding:0.2rem 0.7rem;font-size:0.72rem;" id="me-switch">Switch</button>
+      </div>
+
+      <label style="margin-top:0.8rem;">Cloud Sync (Firebase)</label>
       <div id="fb-status" class="status-row warn">Not connected. Data is local-only on this device.</div>
       <p class="mhint">Paste your Firebase config below to sync between your phone and Chardae's. Free forever for your usage. <a href="#" id="fb-help-link">How do I get this?</a></p>
       <textarea id="fb-config-inp" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","databaseURL":"https://your-project-default-rtdb.firebaseio.com"}'></textarea>
@@ -752,6 +811,19 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
   </div>
 </div>
 
+<!-- IDENTITY PICKER MODAL -->
+<div class="modal-bg" id="me-modal">
+  <div class="modal">
+    <div style="font-size:2rem;">👋</div>
+    <h2>Who's using this device?</h2>
+    <p>Today's goals are private to each of you. We'll keep this device set to whoever you pick.</p>
+    <div class="me-pick-row">
+      <button class="identity-btn d-btn" data-me="daniel">👤<br>Daniel</button>
+      <button class="identity-btn c-btn" data-me="chardae">👤<br>Chardae</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast">
   <span id="toast-msg"></span>
@@ -778,7 +850,7 @@ let DATA   = {};
 let selYear  = CUR_YEAR;
 let selMonth = CUR_MONTH;
 let selWeek  = CUR_WEEK;
-let curView  = 'weekly';
+let curView  = 'today';
 let pendingDel = null;
 let openCats = new Set();
 let undoTimer = null;
@@ -814,6 +886,7 @@ function skey(period, yr, sub, who) {
   if (period === 'monthly') return STORAGE_PREFIX + 'm-' + yr + '-' + sub + '-' + who;
   if (period === 'yearly')  return STORAGE_PREFIX + 'y-' + yr + '-' + who;
   if (period === 'wedding') return STORAGE_PREFIX + 'wed-' + sub;
+  if (period === 'today')   return STORAGE_PREFIX + 'today-' + sub + '-' + who; // sub=ISO date, who=me
   return '';
 }
 function getG(period, yr, sub, who) { return DATA[skey(period, yr, sub, who)] || []; }
@@ -1189,17 +1262,18 @@ function grandTotal(yr, who) { return weeklyPtsYear(yr, who) + monthlyPtsYear(yr
 
 // ─── RENDER ──────────────────────────────────────────────
 function render() {
-  // Hide cal/scoreboard/mini on wedding tab
-  const isWed = curView === 'wedding';
-  document.getElementById('cal-wrap').style.display    = isWed ? 'none' : '';
-  document.getElementById('scores-wrap').style.display = isWed ? 'none' : '';
-  document.getElementById('mini-wrap').style.display   = isWed ? 'none' : '';
+  // Hide cal/scoreboard/mini on wedding + today tabs (those are not point-based)
+  const hideShared = curView === 'wedding' || curView === 'today';
+  document.getElementById('cal-wrap').style.display    = hideShared ? 'none' : '';
+  document.getElementById('scores-wrap').style.display = hideShared ? 'none' : '';
+  document.getElementById('mini-wrap').style.display   = hideShared ? 'none' : '';
 
-  if (!isWed) {
+  if (!hideShared) {
     renderCal();
     renderScoreboard();
     renderMini();
   }
+  if (curView === 'today')      renderToday();
   if (curView === 'weekly')     renderWeekly();
   if (curView === 'monthly')    renderMonthly();
   if (curView === 'yearly')     renderYearly();
@@ -1418,6 +1492,186 @@ function renderSB() {
       switchView('monthly');
     });
   });
+}
+
+// ─── TODAY (PERSONAL) ────────────────────────────────────
+const ME_KEY = 'gt5-me';
+const ME_LABELS = { daniel: 'Daniel', chardae: 'Chardae' };
+function getMe() { return localStorage.getItem(ME_KEY); }
+function setMe(v) { localStorage.setItem(ME_KEY, v); }
+function todayISO(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function isoAddDays(iso, n) {
+  const [y,m,d] = iso.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  dt.setDate(dt.getDate() + n);
+  return todayISO(dt);
+}
+function getTodayList(date) {
+  const me = getMe();
+  if (!me) return [];
+  return getG('today', null, date, me);
+}
+function setTodayListData(date, list) {
+  const me = getMe();
+  if (!me) return;
+  setG('today', null, date, me, list);
+}
+async function persistToday(date) {
+  const me = getMe();
+  if (!me) return;
+  await persistKey(skey('today', null, date, me));
+}
+function lastRollKey() { return STORAGE_PREFIX + 'today-last-roll-' + getMe(); }
+function getLastRoll() { return localStorage.getItem(lastRollKey()); }
+function setLastRoll(date) { localStorage.setItem(lastRollKey(), date); }
+
+async function rollTodayForward() {
+  const me = getMe();
+  if (!me) return;
+  const today = todayISO();
+  const last = getLastRoll();
+  if (last === today) return;
+  const startISO = last ? isoAddDays(last, 0) : isoAddDays(today, -7); // look back at most 7 days if first run
+  // Walk every prior day from startISO up to (but not including) today, collect undone items
+  const carryItems = [];
+  let cur = startISO;
+  while (cur < today) {
+    const items = getTodayList(cur);
+    items.forEach(it => { if (!it.done) carryItems.push({ ...it, carriedFrom: cur }); });
+    cur = isoAddDays(cur, 1);
+  }
+  if (carryItems.length) {
+    const existing = getTodayList(today);
+    const existingIds = new Set(existing.map(x => x.id));
+    carryItems.forEach(c => { if (!existingIds.has(c.id)) existing.push(c); });
+    setTodayListData(today, existing);
+    await persistToday(today);
+  }
+  setLastRoll(today);
+}
+
+async function addTodayItem(text) {
+  const date = todayISO();
+  const list = getTodayList(date);
+  list.push({ id: 't-' + Date.now(), text: text, done: false });
+  setTodayListData(date, list);
+  render();
+  await persistToday(date);
+}
+async function toggleTodayItem(id) {
+  const date = todayISO();
+  const list = getTodayList(date);
+  const it = list.find(x => x.id === id);
+  if (!it) return;
+  it.done = !it.done;
+  setTodayListData(date, list);
+  render();
+  await persistToday(date);
+  if (it.done) doBurst();
+}
+async function delTodayItem(id) {
+  const date = todayISO();
+  const list = getTodayList(date).filter(x => x.id !== id);
+  setTodayListData(date, list);
+  render();
+  await persistToday(date);
+}
+function pastDatesWithLists(limit) {
+  // Scan localStorage for keys matching today-YYYY-MM-DD-me, excluding today's date
+  const me = getMe();
+  if (!me) return [];
+  const today = todayISO();
+  const prefix = STORAGE_PREFIX + 'today-';
+  const suffix = '-' + me;
+  const found = [];
+  for (let i=0; i<localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k || !k.startsWith(prefix) || !k.endsWith(suffix)) continue;
+    const date = k.slice(prefix.length, k.length - suffix.length);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    if (date === today) continue;
+    found.push(date);
+  }
+  return found.sort().reverse().slice(0, limit || 14);
+}
+
+let expandedPastDay = null;
+
+function renderToday() {
+  const me = getMe();
+  if (!me) return;
+  document.getElementById('today-who').textContent = '👤 ' + ME_LABELS[me] + "'s Today";
+  const dateObj = new Date();
+  const wkday = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dateObj.getDay()];
+  const mo = ['January','February','March','April','May','June','July','August','September','October','November','December'][dateObj.getMonth()];
+  document.getElementById('today-date').textContent = wkday + ', ' + mo + ' ' + dateObj.getDate();
+
+  const date = todayISO();
+  const items = getTodayList(date);
+  const done = items.filter(i => i.done).length;
+  const pct = items.length ? Math.round(done/items.length*100) : 0;
+  document.getElementById('today-prog-cnt').textContent = done + ' / ' + items.length + ' done';
+  document.getElementById('today-prog-fill').style.width = pct + '%';
+
+  // Sort: not-done first, then alphabetical
+  const sorted = items.slice().sort((a,b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    return (a.text||'').localeCompare(b.text||'');
+  });
+  let html = '';
+  if (!sorted.length) {
+    html = '<div class="empty" style="text-align:center;color:var(--muted);font-style:italic;padding:1rem 0;">Nothing yet. What\'s the goal today?</div>';
+  } else {
+    sorted.forEach(it => {
+      const carry = it.carriedFrom ? '<div class="tcarry">↩ from '+escHtml(it.carriedFrom)+'</div>' : '';
+      html += '<div class="titem'+(it.done?' done':'')+'" data-today-item="'+it.id+'">'
+        + '<div class="tck">'+(it.done?'✓':'')+'</div>'
+        + '<div class="ttxt">'+escHtml(it.text||'')+carry+'</div>'
+        + '<button class="tdel" data-today-del="'+it.id+'">✕</button>'
+        + '</div>';
+    });
+  }
+  document.getElementById('today-list').innerHTML = html;
+
+  // Past days
+  const past = pastDatesWithLists(14);
+  let pastHtml = '';
+  if (past.length) {
+    pastHtml += '<div class="past-hdr" data-toggle-past>▾ Past days ('+past.length+')</div>';
+    if (expandedPastDay !== null) {
+      past.forEach(pd => {
+        const its = getTodayList(pd);
+        const d = its.filter(x=>x.done).length;
+        const p = its.length ? Math.round(d/its.length*100) : 0;
+        const isOpen = expandedPastDay === pd;
+        pastHtml += '<div class="past-day" data-past-day="'+pd+'">'
+          + '<div><div class="pd-date">'+pd+'</div>'+(isOpen?'<div class="pd-stat">tap to collapse</div>':'')+'</div>'
+          + '<div class="pd-stat">'+d+'/'+its.length+' · '+p+'%</div>'
+          + '</div>';
+        if (isOpen) {
+          its.forEach(it => {
+            pastHtml += '<div class="titem'+(it.done?' done':'')+'" style="opacity:0.75;">'
+              + '<div class="tck">'+(it.done?'✓':'')+'</div>'
+              + '<div class="ttxt">'+escHtml(it.text||'')+'</div>'
+              + '</div>';
+          });
+        }
+      });
+    }
+  }
+  document.getElementById('past-days-wrap').innerHTML = pastHtml;
+}
+
+function showIdentityModal() {
+  document.getElementById('me-modal').classList.add('open');
+}
+function applyIdentityToSettings() {
+  const me = getMe();
+  const el = document.getElementById('me-current');
+  if (el) el.textContent = me ? ME_LABELS[me] : 'not set';
 }
 
 // ─── WEDDING OWNERS ──────────────────────────────────────
@@ -2039,12 +2293,69 @@ document.addEventListener('click', function(e) {
   // Wedding add
   if (e.target.id === 'wed-add-btn') { addWedItem(); return; }
 
+  // Today: identity pick
+  const idBtn = e.target.closest('[data-me]');
+  if (idBtn) {
+    setMe(idBtn.dataset.me);
+    document.getElementById('me-modal').classList.remove('open');
+    applyIdentityToSettings();
+    rollTodayForward().then(() => render());
+    return;
+  }
+
+  // Today: switch identity from settings
+  if (e.target.id === 'me-switch') {
+    document.getElementById('settings-modal').classList.remove('open');
+    showIdentityModal();
+    return;
+  }
+
+  // Today: item toggle
+  const tItem = e.target.closest('[data-today-item]');
+  if (tItem && !e.target.closest('[data-today-del]')) {
+    toggleTodayItem(tItem.dataset.todayItem);
+    return;
+  }
+
+  // Today: item delete
+  const tDel = e.target.closest('[data-today-del]');
+  if (tDel) {
+    e.stopPropagation();
+    delTodayItem(tDel.dataset.todayDel);
+    return;
+  }
+
+  // Today: add
+  if (e.target.id === 'today-add-btn') {
+    const inp = document.getElementById('today-add-inp');
+    const txt = inp.value.trim();
+    if (!txt) { inp.focus(); return; }
+    addTodayItem(txt);
+    inp.value = '';
+    return;
+  }
+
+  // Today: past day expand
+  if (e.target.closest('[data-toggle-past]')) {
+    expandedPastDay = expandedPastDay ? null : 'OPEN';
+    render();
+    return;
+  }
+  const pd = e.target.closest('[data-past-day]');
+  if (pd) {
+    const date = pd.dataset.pastDay;
+    expandedPastDay = (expandedPastDay === date) ? 'OPEN' : date;
+    render();
+    return;
+  }
+
   // Settings
   if (e.target.id === 'open-settings') {
     const existingCfg = loadFbConfig();
     document.getElementById('fb-config-inp').value = existingCfg ? JSON.stringify(existingCfg, null, 2) : '';
     if (existingCfg) setFbStatus('ok','Currently connected.');
     else setFbStatus('warn','Not connected. Data is local-only on this device.');
+    applyIdentityToSettings();
     document.getElementById('settings-modal').classList.add('open');
     return;
   }
@@ -2180,6 +2491,14 @@ async function init() {
   }
 
   document.getElementById('loading').style.display = 'none';
+
+  // Today identity: prompt if not set, otherwise roll forward
+  if (!getMe()) {
+    showIdentityModal();
+  } else {
+    await rollTodayForward();
+  }
+  applyIdentityToSettings();
   render();
 
   // Wire budget who-select to toggle the custom-name input
@@ -2191,6 +2510,16 @@ async function init() {
       if (whoSel.value === '__custom__') cust.focus();
     });
   }
+
+  // Today: Enter to add
+  const todayInp = document.getElementById('today-add-inp');
+  if (todayInp) {
+    todayInp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); document.getElementById('today-add-btn').click(); }
+    });
+  }
+
+  // Refresh settings identity row whenever settings is opened (handled by click delegator below)
 
   // Push any newly added Daniel tasks up to Firebase if connected
   if (newCats && newCats.size) {
