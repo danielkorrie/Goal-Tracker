@@ -244,8 +244,13 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 .titem.done .tck{background:#a78bff;color:#fff;}
 .ttxt{flex:1;font-size:0.83rem;font-weight:600;display:flex;flex-direction:column;}
 .tcarry{font-size:0.6rem;color:var(--muted);font-style:italic;margin-top:0.15rem;}
-.tdel{background:none;border:none;color:#ffffff15;cursor:pointer;font-size:0.78rem;padding:0;flex-shrink:0;transition:color 0.2s;}
+.tdel{background:none;border:none;color:#ffffff15;cursor:pointer;font-size:0.78rem;padding:0 0.15rem;flex-shrink:0;transition:color 0.2s;}
 .tdel:hover{color:var(--red);}
+.tact{background:none;border:none;color:#ffffff30;cursor:pointer;font-size:0.82rem;padding:0 0.18rem;flex-shrink:0;transition:color 0.2s;}
+.tact:hover{color:var(--gold);}
+.tact.tmove:hover{color:#a78bff;}
+.witem .tact{font-size:0.82rem;}
+.bud-row .tact{margin-left:0.1rem;}
 .past-days-wrap{margin-top:1.2rem;}
 .past-hdr{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:800;padding:0.4rem 0.2rem;cursor:pointer;}
 .past-day{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:0.5rem 0.7rem;margin-bottom:0.3rem;display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;}
@@ -809,6 +814,17 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
     <div class="mbtns">
       <button class="mcls" id="fb-help-close">Got it</button>
     </div>
+  </div>
+</div>
+
+<!-- MOVE-TO-DAY MODAL -->
+<div class="modal-bg" id="move-modal">
+  <div class="modal">
+    <div style="font-size:1.7rem;">↪</div>
+    <h2>Move to which day?</h2>
+    <p id="move-modal-msg">"…"</p>
+    <div class="me-pick-row" id="move-day-grid" style="flex-wrap:wrap;"></div>
+    <div class="mbtns"><button class="mcls" id="move-cancel">Cancel</button></div>
   </div>
 </div>
 
@@ -1397,6 +1413,7 @@ function buildList(goals, period, yr, sub, who) {
       + '<button class="sbtn sbtn-start'+(isStart?' active':'')+'" data-status="started" data-id="'+g.id+'" data-period="'+period+'" data-yr="'+yr+'" data-sub="'+subStr+'" data-who="'+who+'">🌱 Started (+1)</button>'
       + '</div></div>'
       + '<div class="gpts">'+(earnedPts>0?'+'+earnedPts:'')+'</div>'
+      + '<button class="tact" data-goal-edit="'+g.id+'" data-period="'+period+'" data-yr="'+yr+'" data-sub="'+subStr+'" data-who="'+who+'" title="Edit">✏️</button>'
       + '<button class="gdel" data-del="'+g.id+'" data-period="'+period+'" data-yr="'+yr+'" data-sub="'+subStr+'" data-who="'+who+'">✕</button>'
       + '</div>';
   }).join('');
@@ -1623,6 +1640,60 @@ async function delTodayItem(id, dateOverride) {
   render();
   await persistToday(date);
 }
+async function editTodayItem(id, dateOverride) {
+  const date = dateOverride || todayISO();
+  const list = getTodayList(date);
+  const it = list.find(x => x.id === id);
+  if (!it) return;
+  const next = prompt('Edit goal:', it.text || '');
+  if (next == null) return;
+  const t = next.trim();
+  if (!t) return;
+  it.text = t;
+  setTodayListData(date, list);
+  render();
+  await persistToday(date);
+}
+let _moveCtx = null; // { id, fromDate }
+function openMoveModal(id, fromDate) {
+  const list = getTodayList(fromDate);
+  const it = list.find(x => x.id === id);
+  if (!it) return;
+  _moveCtx = { id, fromDate };
+  document.getElementById('move-modal-msg').textContent = '"' + (it.text || '') + '"';
+  const grid = document.getElementById('move-day-grid');
+  grid.innerHTML = '';
+  weekDates().forEach(w => {
+    if (w.iso === fromDate) return; // skip the source day
+    const b = document.createElement('button');
+    b.className = 'identity-btn';
+    b.style.padding = '0.7rem 0.4rem';
+    b.style.fontSize = '0.82rem';
+    b.style.flex = '1 1 30%';
+    b.dataset.moveTo = w.iso;
+    b.innerHTML = '<div style="font-size:0.66rem;opacity:0.7;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:0.2rem;">'+(w.isToday?'Today':w.short)+'</div>'+ w.iso.slice(5);
+    grid.appendChild(b);
+  });
+  document.getElementById('move-modal').classList.add('open');
+}
+async function performMoveTo(targetISO) {
+  if (!_moveCtx) return;
+  const { id, fromDate } = _moveCtx;
+  const fromList = getTodayList(fromDate);
+  const it = fromList.find(x => x.id === id);
+  if (!it) { _moveCtx = null; return; }
+  const toList = getTodayList(targetISO);
+  toList.push({ ...it, carriedFrom: null }); // fresh placement, drop carry tag
+  setTodayListData(targetISO, toList);
+  setTodayListData(fromDate, fromList.filter(x => x.id !== id));
+  document.getElementById('move-modal').classList.remove('open');
+  _moveCtx = null;
+  render();
+  await persistToday(targetISO);
+  await persistToday(fromDate);
+  const wk = weekDates().find(w => w.iso === targetISO);
+  if (wk) showAddToast('↪ Moved to ' + wk.full);
+}
 function pastDatesWithLists(limit) {
   // Scan localStorage for keys matching today-YYYY-MM-DD-me, excluding today's date
   const me = getMe();
@@ -1674,6 +1745,8 @@ function renderToday() {
       html += '<div class="titem'+(it.done?' done':'')+'" data-today-item="'+it.id+'">'
         + '<div class="tck">'+(it.done?'✓':'')+'</div>'
         + '<div class="ttxt">'+escHtml(it.text||'')+carry+'</div>'
+        + '<button class="tact" data-today-edit="'+it.id+'" title="Edit">✏️</button>'
+        + '<button class="tact tmove" data-today-move="'+it.id+'" title="Move to another day">↪</button>'
         + '<button class="tdel" data-today-del="'+it.id+'">✕</button>'
         + '</div>';
     });
@@ -1712,9 +1785,11 @@ function renderToday() {
         + '</div>';
       if (isOpen) {
         its.forEach(it => {
-          pastHtml += '<div class="titem'+(it.done?' done':'')+'" style="opacity:0.75;">'
+          pastHtml += '<div class="titem'+(it.done?' done':'')+'" style="opacity:0.85;">'
             + '<div class="tck">'+(it.done?'✓':'')+'</div>'
             + '<div class="ttxt">'+escHtml(it.text||'')+'</div>'
+            + '<button class="tact" data-today-edit="'+it.id+'" data-today-date="'+w.iso+'" title="Edit">✏️</button>'
+            + '<button class="tact tmove" data-today-move="'+it.id+'" data-today-date="'+w.iso+'" title="Move">↪</button>'
             + '<button class="tdel" data-today-del="'+it.id+'" data-today-date="'+w.iso+'">✕</button>'
             + '</div>';
         });
@@ -1797,6 +1872,25 @@ async function delBudgetEntry(kind, id) {
   render();
   await persistBudget(kind);
 }
+async function editBudgetEntry(kind, id) {
+  const list = getBudgetList(kind);
+  const e = list.find(x => x.id === id);
+  if (!e) return;
+  const newAmt = prompt('Edit amount:', String(e.amount || 0));
+  if (newAmt == null) return;
+  const amtN = parseFloat(newAmt);
+  if (isNaN(amtN) || amtN < 0) { alert('Amount must be a positive number.'); return; }
+  const newLabel = prompt('Edit label:', e.label || '');
+  if (newLabel == null) return;
+  const newWho = prompt('Edit who (Daniel / Chardae / Family/Friends / any name):', e.who || '');
+  if (newWho == null) return;
+  e.amount = amtN;
+  e.label = newLabel.trim();
+  e.who = newWho.trim() || 'Daniel';
+  setBudgetList(kind, list);
+  render();
+  await persistBudget(kind);
+}
 function ownerById(id){ return WED_OWNERS.find(o=>o.id===id) || WED_OWNERS[0]; }
 function nextOwnerId(id){
   const idx = WED_OWNERS.findIndex(o=>o.id===id);
@@ -1857,6 +1951,7 @@ function renderBudget() {
       + '<span class="amt">'+(kind==='expense'?'-':'+')+' '+fmtMoney(+e.amount||0).replace('-','')+'</span>'
       + '<span class="lbl">'+escHtml(e.label||'')+'</span>'
       + '<span class="who">'+escHtml(e.who||'')+'</span>'
+      + '<button class="tact" data-bud-edit="'+e.id+'" data-bud-kind="'+kind+'" title="Edit">✏️</button>'
       + '<button class="del" data-bud-del="'+e.id+'" data-bud-kind="'+kind+'">✕</button>'
       + '</div>'
     ).join('');
@@ -1960,6 +2055,7 @@ function renderWedding() {
           + '<div class="wtxt">'+escHtml(it.text)+'</div>'
           + chip
           + priBadge
+          + '<button class="tact" data-wed-edit="'+it.id+'" data-cat="'+cat.id+'" title="Edit">✏️</button>'
           + '<button class="wdel" data-wed-del="'+it.id+'" data-cat="'+cat.id+'">✕</button>'
           + '</div>';
       });
@@ -2018,6 +2114,20 @@ async function addWedItem() {
   await persistKey(skey('wedding', null, cat, null));
 }
 
+async function editWedItem(catId, itemId) {
+  const items = getG('wedding', null, catId, null);
+  const it = items.find(x => x.id === itemId);
+  if (!it) return;
+  const next = prompt('Edit wedding task:', it.text || '');
+  if (next == null) return;
+  const t = next.trim();
+  if (!t) return;
+  it.text = t;
+  setG('wedding', null, catId, null, items);
+  render();
+  await persistKey(skey('wedding', null, catId, null));
+}
+
 async function delWedItem(catId, itemId) {
   const items = getG('wedding', null, catId, null);
   const it = items.find(x=>x.id===itemId);
@@ -2027,6 +2137,21 @@ async function delWedItem(catId, itemId) {
   render();
   await persistKey(skey('wedding', null, catId, null));
   showUndoToast('Deleted "'+it.text+'"');
+}
+
+// ─── EDIT GOAL TEXT ──────────────────────────────────────
+async function editGoal(period, yr, sub, who, id) {
+  const goals = getG(period, yr, sub, who);
+  const g = goals.find(x => x.id === id);
+  if (!g) return;
+  const next = prompt('Edit goal:', g.text || '');
+  if (next == null) return;
+  const t = next.trim();
+  if (!t) return;
+  g.text = t;
+  setG(period, yr, sub, who, goals);
+  render();
+  await persistKey(skey(period, yr, sub, who));
 }
 
 // ─── SET STATUS ──────────────────────────────────────────
@@ -2278,6 +2403,15 @@ document.addEventListener('click', function(e) {
     return;
   }
 
+  // Goal edit (weekly/monthly/yearly)
+  const gEdit = e.target.closest('[data-goal-edit]');
+  if (gEdit) {
+    e.stopPropagation();
+    const sub = gEdit.dataset.sub==='null' ? null : +gEdit.dataset.sub;
+    editGoal(gEdit.dataset.period, +gEdit.dataset.yr, sub, gEdit.dataset.who, gEdit.dataset.goalEdit);
+    return;
+  }
+
   const sbtn = e.target.closest('.sbtn');
   if (sbtn && sbtn.dataset.status) {
     e.stopPropagation();
@@ -2320,6 +2454,13 @@ document.addEventListener('click', function(e) {
     return;
   }
 
+  // Budget edit
+  const bEdit = e.target.closest('[data-bud-edit]');
+  if (bEdit) {
+    editBudgetEntry(bEdit.dataset.budKind, bEdit.dataset.budEdit);
+    return;
+  }
+
   // Budget delete
   const bDel = e.target.closest('[data-bud-del]');
   if (bDel) {
@@ -2355,6 +2496,14 @@ document.addEventListener('click', function(e) {
   if (wChip) {
     e.stopPropagation();
     cycleWedOwner(wChip.dataset.cat, wChip.dataset.wedChip);
+    return;
+  }
+
+  // Wedding item edit
+  const wEdit = e.target.closest('[data-wed-edit]');
+  if (wEdit) {
+    e.stopPropagation();
+    editWedItem(wEdit.dataset.cat, wEdit.dataset.wedEdit);
     return;
   }
 
@@ -2395,8 +2544,36 @@ document.addEventListener('click', function(e) {
 
   // Today: item toggle
   const tItem = e.target.closest('[data-today-item]');
-  if (tItem && !e.target.closest('[data-today-del]')) {
+  if (tItem && !e.target.closest('[data-today-del]') && !e.target.closest('[data-today-edit]') && !e.target.closest('[data-today-move]')) {
     toggleTodayItem(tItem.dataset.todayItem);
+    return;
+  }
+
+  // Today: edit text
+  const tEdit = e.target.closest('[data-today-edit]');
+  if (tEdit) {
+    e.stopPropagation();
+    editTodayItem(tEdit.dataset.todayEdit, tEdit.dataset.todayDate || null);
+    return;
+  }
+  // Today: move to another day
+  const tMove = e.target.closest('[data-today-move]');
+  if (tMove) {
+    e.stopPropagation();
+    openMoveModal(tMove.dataset.todayMove, tMove.dataset.todayDate || todayISO());
+    return;
+  }
+  // Move modal: pick destination
+  const tMoveTo = e.target.closest('[data-move-to]');
+  if (tMoveTo) {
+    performMoveTo(tMoveTo.dataset.moveTo);
+    return;
+  }
+  // Move modal: cancel / backdrop
+  if (e.target.id === 'move-cancel' || e.target.id === 'move-modal') {
+    if (e.target.id === 'move-modal' && !e.target.classList.contains('modal-bg')) return;
+    document.getElementById('move-modal').classList.remove('open');
+    _moveCtx = null;
     return;
   }
 
