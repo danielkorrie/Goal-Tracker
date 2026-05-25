@@ -778,6 +778,10 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
         <button class="myes" id="fb-connect">Connect Sync</button>
         <button class="mno" id="fb-disconnect">Disconnect</button>
       </div>
+      <div class="mbtns" style="margin-top:0.4rem;">
+        <button class="mno" id="fb-reconnect">🔄 Reconnect</button>
+        <button class="mno" id="fb-test">🧪 Test Sync</button>
+      </div>
 
       <label style="margin-top:1rem;">Backup &amp; Restore</label>
       <p class="mhint">Export keeps your data safe even without sync.</p>
@@ -2619,7 +2623,8 @@ document.addEventListener('click', function(e) {
   if (e.target.id === 'open-settings') {
     const existingCfg = loadFbConfig();
     document.getElementById('fb-config-inp').value = existingCfg ? JSON.stringify(existingCfg, null, 2) : '';
-    if (existingCfg) setFbStatus('ok','Currently connected.');
+    if (existingCfg && fbDb && fbRef) setFbStatus('ok','Connected & syncing live.');
+    else if (existingCfg) setFbStatus('warn','Config saved but not actively syncing. Tap 🔄 Reconnect.');
     else setFbStatus('warn','Not connected. Data is local-only on this device.');
     applyIdentityToSettings();
     document.getElementById('settings-modal').classList.add('open');
@@ -2699,6 +2704,43 @@ document.addEventListener('click', function(e) {
   if (e.target.id === 'fb-disconnect') {
     disconnectFirebase();
     setFbStatus('warn','Disconnected. Data is local-only on this device.');
+    return;
+  }
+  if (e.target.id === 'fb-reconnect') {
+    if (!loadFbConfig()) { setFbStatus('err','No saved config. Paste your Firebase config and tap Connect Sync.'); return; }
+    try { if (typeof fbUnsub === 'function') fbUnsub(); } catch(_) {}
+    fbUnsub = null; fbDb = null; fbRef = null;
+    setFbStatus('warn','Reconnecting...');
+    initFirebase().then(ok => {
+      if (ok) setFbStatus('ok','Reconnected. Live syncing now.');
+      else setFbStatus('err','Reconnect failed. Check your internet and the databaseURL in your config.');
+    });
+    return;
+  }
+  if (e.target.id === 'fb-test') {
+    if (!fbDb || !fbRef) { setFbStatus('err','Not connected. Tap 🔄 Reconnect first.'); return; }
+    setFbStatus('warn','Testing read/write...');
+    (async () => {
+      try {
+        const stamp = Date.now();
+        const testRef = fbDb.ref(fbRef + '/__test_ping');
+        await testRef.set({ stamp, from: getMe() || 'unknown' });
+        const snap = await testRef.once('value');
+        const v = snap.val();
+        if (v && v.stamp === stamp) {
+          setFbStatus('ok','✅ Sync works. Wrote and read back at ' + new Date(stamp).toLocaleTimeString() + '.');
+        } else {
+          setFbStatus('err','Read back wrong value. Security rules may be blocking. Check Firebase rules.');
+        }
+      } catch (err) {
+        const msg = (err && err.message) || String(err);
+        if (/PERMISSION_DENIED/i.test(msg)) {
+          setFbStatus('err','❌ PERMISSION_DENIED. Your Firebase rules block writes. Set rules to {".read": true, ".write": true} for now.');
+        } else {
+          setFbStatus('err','❌ Test failed: ' + msg);
+        }
+      }
+    })();
     return;
   }
   if (e.target.id === 'export-btn') { exportData(); return; }
