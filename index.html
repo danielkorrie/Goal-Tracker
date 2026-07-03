@@ -266,6 +266,55 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 .identity-btn.c-btn{border-color:var(--c);}
 .identity-btn.c-btn:hover{background:linear-gradient(135deg,var(--c),#ffb0cf);color:#fff;}
 
+/* MEALS VIEW */
+.meals-hero{background:linear-gradient(135deg,#7be0a8,#4ade80);border-radius:18px;padding:1.1rem;text-align:center;margin-bottom:1rem;color:#0a2015;}
+.meals-hero h2{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:2px;}
+.meals-sub{font-size:0.72rem;color:var(--muted);}
+.meals-hero .meals-sub{color:#0a2015;opacity:0.75;font-weight:700;}
+.meal-info{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:0.9rem;overflow:hidden;}
+.meal-info-hdr{width:100%;background:var(--card2);border:none;color:var(--text);padding:0.7rem 0.9rem;display:flex;justify-content:space-between;align-items:center;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.82rem;cursor:pointer;}
+.meal-info-hdr:hover{background:#1f2a4a;}
+.meal-info.open .meal-info-chev{transform:rotate(180deg);}
+.meal-info-chev{color:var(--muted);transition:transform 0.2s;}
+.meal-info-body{padding:0.8rem 1rem;font-size:0.8rem;line-height:1.5;}
+.meal-info-body ul{margin:0.4rem 0 0.4rem 1.2rem;padding:0;}
+.meal-info-body li{margin-bottom:0.25rem;}
+.week-nav{display:flex;align-items:center;justify-content:center;gap:0.8rem;margin-bottom:0.5rem;}
+.week-nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:50px;width:34px;height:34px;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;cursor:pointer;}
+.week-nav-btn:hover{background:#1f2a4a;border-color:#4ade80;}
+.week-nav-lbl{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:1.5px;color:var(--text);}
+.meal-section-hdr{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:1.5px;margin:0.4rem 0 0.5rem;color:var(--muted);}
+.week-meal-row{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0.6rem 0.8rem;margin-bottom:0.45rem;display:flex;align-items:center;gap:0.55rem;}
+.week-meal-name{flex:1;font-weight:700;font-size:0.85rem;}
+.day-chip{background:var(--card2);border:1px solid var(--border);color:var(--text);padding:0.28rem 0.7rem;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;cursor:pointer;flex-shrink:0;-webkit-appearance:none;appearance:none;padding-right:1.5rem;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 12px) 55%,calc(100% - 8px) 55%;background-size:4px 4px,4px 4px;background-repeat:no-repeat;outline:none;}
+.day-chip.set{background-color:#4ade8030;border-color:#4ade80;color:#4ade80;}
+.day-chip:hover,.day-chip:focus{border-color:#4ade80;}
+.wm-empty{color:var(--muted);font-size:0.78rem;font-style:italic;text-align:center;padding:0.8rem 0;}
+.meal-group{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:0.55rem;}
+.meal-card{border-bottom:1px solid var(--border);transition:background 0.15s;}
+.meal-card:last-child{border-bottom:none;}
+.meal-card.expanded{background:#1a2340;}
+.meal-card-hdr{display:flex;align-items:center;gap:0.6rem;padding:0.85rem 1rem;cursor:pointer;user-select:none;}
+.meal-card-hdr:active{background:#1f2a4a;}
+.meal-card-hdr .meal-name{flex:1;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.9rem;color:var(--text);}
+.meal-card-hdr .meal-chev{color:var(--muted);font-size:0.9rem;transition:transform 0.2s;flex-shrink:0;}
+.meal-card.expanded .meal-card-hdr .meal-chev{transform:rotate(180deg);color:#4ade80;}
+.meal-card-body{display:none;padding:0.2rem 1rem 0.9rem;}
+.meal-card.expanded .meal-card-body{display:block;}
+.meal-body-label{font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:800;margin-bottom:0.3rem;}
+.meal-full-list{margin:0 0 0.7rem 0.9rem;padding:0;font-size:0.82rem;line-height:1.7;color:var(--text);}
+.meal-full-list li{margin-bottom:0.15rem;}
+.meal-tags{display:flex;flex-wrap:wrap;gap:0.25rem;margin-bottom:0.7rem;}
+.meal-tag{background:#4ade8020;color:#7be0a8;font-size:0.6rem;font-weight:800;padding:0.18rem 0.55rem;border-radius:50px;text-transform:uppercase;letter-spacing:0.8px;}
+.meal-actions{display:flex;gap:0.4rem;flex-wrap:wrap;}
+.meal-actions .abtn{flex:1;font-size:0.75rem;padding:0.45rem 0.6rem;}
+.meal-actions .mcls{padding:0.45rem 0.7rem;font-size:0.72rem;}
+.meal-add-row{background:var(--card);border:1px dashed var(--border);border-radius:14px;padding:0.8rem;text-align:center;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:800;font-size:0.82rem;cursor:pointer;margin-bottom:0.55rem;transition:all 0.15s;}
+.meal-add-row:hover{border-color:#4ade80;color:#4ade80;background:#1f2a4a;}
+.meal-lib-hdr{display:flex;justify-content:space-between;align-items:baseline;margin:0.4rem 0 0.5rem;}
+.meal-lib-hdr .meal-section-hdr{margin:0;}
+.meal-lib-count{font-size:0.7rem;color:var(--muted);font-weight:700;}
+
 /* BUDGET VIEW */
 .bud-goal-num{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;text-align:center;margin:0.4rem 0 0.2rem;}
 .bud-goal-sub{text-align:center;font-size:0.72rem;color:var(--muted);margin-bottom:0.6rem;}
@@ -387,6 +436,7 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
   <button class="tab" data-view="weekly">📅 Weekly</button>
   <button class="tab" data-view="monthly">📆 Monthly</button>
   <button class="tab" data-view="yearly">🎯 Yearly</button>
+  <button class="tab" data-view="meals">🍽️ Meals</button>
   <button class="tab wedding" data-view="wedding">💍 Wedding</button>
   <button class="tab" data-view="scoreboard">🏆 Scoreboard</button>
 </div>
@@ -637,6 +687,51 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
     </table>
   </div>
 
+  <!-- MEALS VIEW -->
+  <div class="view" id="view-meals">
+    <div class="meals-hero">
+      <h2>🍽️ Meals</h2>
+      <p class="meals-sub">Plan the week · pick from your library · build a grocery list</p>
+    </div>
+
+    <div class="meal-info" id="meal-info-card">
+      <button class="meal-info-hdr" data-meal-info-toggle>
+        <span>💡 Why these meals?</span>
+        <span class="meal-info-chev">▾</span>
+      </button>
+      <div class="meal-info-body" id="meal-info-body" style="display:none;">
+        <p><strong>Meals here are built around nutrients that hormonal birth control depletes.</strong></p>
+        <ul>
+          <li><strong>B-vitamins (B6, folate, B12)</strong> — eggs, chickpeas, chicken, lentils, dark greens</li>
+          <li><strong>Magnesium & zinc</strong> — pumpkin seeds, spinach, quinoa, 70%+ cacao</li>
+          <li><strong>Selenium</strong> — 1-2 Brazil nuts a day covers it</li>
+          <li><strong>Cruciferous veg (DIM)</strong> — broccoli, cauliflower, Brussels sprouts, kale</li>
+          <li><strong>Fiber seeds</strong> — flax, chia (help clear excess estrogen)</li>
+          <li><strong>Fermented foods</strong> — Greek yogurt, kefir, sauerkraut, kimchi</li>
+          <li><strong>Hydration</strong> — 8-10 glasses of water daily</li>
+        </ul>
+        <p class="meals-sub">Every seed meal serves 4.</p>
+      </div>
+    </div>
+
+    <div class="week-nav">
+      <button class="week-nav-btn" data-meal-week-nav="prev">‹</button>
+      <div class="week-nav-lbl" id="meal-week-lbl">Week of —</div>
+      <button class="week-nav-btn" data-meal-week-nav="next">›</button>
+    </div>
+
+    <div class="meal-section-hdr">This Week's Menu</div>
+    <div id="meal-week-list"></div>
+    <button class="abtn abtn-w" id="meal-grocery-btn" style="width:100%;margin-bottom:1rem;">🛒 Build Grocery List</button>
+
+    <div class="meal-lib-hdr">
+      <div class="meal-section-hdr">Meal Library</div>
+      <div class="meal-lib-count" id="meal-lib-count">—</div>
+    </div>
+    <div id="meal-library"></div>
+    <div class="meal-add-row" id="meal-add-open">+ Add a new meal</div>
+  </div>
+
   <!-- WEDDING VIEW -->
   <div class="view" id="view-wedding">
     <div class="wedding-hero">
@@ -832,6 +927,40 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
   </div>
 </div>
 
+<!-- ADD MEAL MODAL -->
+<div class="modal-bg" id="meal-add-modal">
+  <div class="modal">
+    <div style="font-size:1.7rem;">🍽️</div>
+    <h2 id="meal-modal-title">New Meal</h2>
+    <div class="left">
+      <label>Meal name</label>
+      <input id="meal-name-inp" type="text" placeholder="e.g., Salmon with Roasted Broccoli" />
+      <label style="margin-top:0.6rem;">Ingredients (one per line)</label>
+      <textarea id="meal-ing-inp" placeholder="Salmon fillets (4)&#10;Broccoli (2 heads)&#10;Olive oil&#10;Lemon"></textarea>
+    </div>
+    <div class="mbtns">
+      <button class="myes" id="meal-save-btn">Save Meal</button>
+      <button class="mcls" id="meal-cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- GROCERY LIST MODAL -->
+<div class="modal-bg" id="grocery-modal">
+  <div class="modal">
+    <div style="font-size:1.7rem;">🛒</div>
+    <h2>Grocery List</h2>
+    <p id="grocery-modal-sub">…</p>
+    <div class="left">
+      <textarea id="grocery-list-txt" readonly style="min-height:220px;font-family:monospace;font-size:0.78rem;"></textarea>
+    </div>
+    <div class="mbtns">
+      <button class="myes" id="grocery-copy-btn">📋 Copy to Clipboard</button>
+      <button class="mcls" id="grocery-close-btn">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- IDENTITY PICKER MODAL -->
 <div class="modal-bg" id="me-modal">
   <div class="modal">
@@ -908,6 +1037,7 @@ function skey(period, yr, sub, who) {
   if (period === 'yearly')  return STORAGE_PREFIX + 'y-' + yr + '-' + who;
   if (period === 'wedding') return STORAGE_PREFIX + 'wed-' + sub;
   if (period === 'today')   return STORAGE_PREFIX + 'today-' + sub + '-' + who; // sub=ISO date, who=me
+  if (period === 'meals')   return STORAGE_PREFIX + 'meals-' + sub; // sub='library' or 'week-YYYY-Www'
   return '';
 }
 function getG(period, yr, sub, who) { return DATA[skey(period, yr, sub, who)] || []; }
@@ -970,9 +1100,12 @@ function loadFirebaseSdk() {
   });
 }
 
+let fbLastError = null;
 async function initFirebase() {
+  fbLastError = null;
   const cfg = loadFbConfig();
-  if (!cfg) return false;
+  if (!cfg) { fbLastError = 'No config saved.'; return false; }
+  if (!cfg.databaseURL) { fbLastError = 'Config is missing databaseURL. Open Firebase Console → Realtime Database → copy the URL (looks like https://<project>-default-rtdb.firebaseio.com) and paste into your config.'; return false; }
   try {
     await loadFirebaseSdk();
     if (!fbApp) fbApp = window.firebase.initializeApp(cfg);
@@ -1028,6 +1161,16 @@ async function initFirebase() {
   } catch (e) {
     console.error('Firebase init failed', e);
     setSyncBadge('error', 'Sync failed');
+    const msg = (e && e.message) || String(e);
+    if (/PERMISSION_DENIED/i.test(msg)) {
+      fbLastError = 'PERMISSION_DENIED. Firebase rules block reads. Go to Firebase Console → Realtime Database → Rules, set: { "rules": { ".read": true, ".write": true } } then Publish.';
+    } else if (/(does not exist|not found|404)/i.test(msg)) {
+      fbLastError = 'Database not found. Your databaseURL is wrong, or the Realtime Database was deleted in Firebase Console. Recreate it and copy the exact URL.';
+    } else if (/network/i.test(msg)) {
+      fbLastError = 'Network error. Check your internet on this device.';
+    } else {
+      fbLastError = msg;
+    }
     return false;
   }
 }
@@ -1252,6 +1395,270 @@ function seedDanielTasks() {
   return touched;
 }
 
+// ─── MEALS ───────────────────────────────────────────────
+const MEAL_DAYS = ['mon','tue','wed','thu','fri','sat','sun'];
+const MEAL_DAY_LBL = {mon:'Mon',tue:'Tue',wed:'Wed',thu:'Thu',fri:'Fri',sat:'Sat',sun:'Sun'};
+let mealsWeekOffset = 0; // 0=current week, -1=prev, +1=next
+let expandedMeal = null;
+
+const MEAL_SEEDS = [
+  { id:'ms-salmon-broc',    name:'Salmon with Roasted Broccoli & Quinoa',
+    ingredients:['Salmon fillets (4)','Broccoli (2 heads)','Quinoa (1 cup dry)','Olive oil','Lemon (1)','Garlic (4 cloves)','Salt & pepper'],
+    tags:['b12','omega-3','cruciferous','magnesium'] },
+  { id:'ms-chicken-chickpea', name:'Chicken & Chickpea Bowl with Lemon-Tahini',
+    ingredients:['Chicken thighs (1.5 lb)','Chickpeas (1 can, 15 oz)','Baby spinach (5 oz)','Tahini (3 tbsp)','Lemon (1)','Olive oil','Garlic','Cumin','Salt & pepper'],
+    tags:['b-vitamins','protein','fiber'] },
+  { id:'ms-lentil-spinach',  name:'Lentil & Spinach Soup',
+    ingredients:['Brown lentils (1.5 cups dry)','Baby spinach (5 oz)','Yellow onion (1)','Carrots (3)','Celery (3 stalks)','Garlic (4 cloves)','Vegetable broth (6 cups)','Cumin','Bay leaf','Olive oil'],
+    tags:['folate','iron','magnesium'] },
+  { id:'ms-yogurt-parfait',  name:'Greek Yogurt Parfait with Flax & Berries',
+    ingredients:['Greek yogurt (32 oz tub)','Ground flaxseed (4 tbsp)','Chia seeds (2 tbsp)','Mixed berries (2 cups)','Honey (optional)','Granola (1 cup)'],
+    tags:['probiotic','fiber','b-vitamins'] },
+  { id:'ms-egg-avocado',     name:'Egg & Avocado Toast with Sauerkraut',
+    ingredients:['Eggs (8)','Ripe avocados (2)','Sourdough bread (8 slices)','Sauerkraut (1 jar)','Red pepper flakes','Sea salt','Olive oil'],
+    tags:['b12','fermented','healthy-fats'] },
+  { id:'ms-turkey-chili',    name:'Turkey Chili with Kidney Beans',
+    ingredients:['Ground turkey (1.5 lb)','Kidney beans (2 cans, 15 oz each)','Diced tomatoes (2 cans, 15 oz)','Yellow onion (1)','Bell pepper (1)','Garlic (4 cloves)','Chili powder','Cumin','Smoked paprika','Olive oil'],
+    tags:['protein','iron','b-vitamins'] },
+  { id:'ms-kimchi-rice',     name:'Kimchi Fried Rice with Egg',
+    ingredients:['Cooked jasmine rice (4 cups, day-old)','Kimchi (1 cup, chopped)','Eggs (4)','Green onions (4)','Sesame oil (2 tbsp)','Soy sauce','Garlic (2 cloves)','Vegetable oil'],
+    tags:['fermented','b12'] },
+  { id:'ms-cod-cauli',       name:'Baked Cod with Cauliflower Mash & Garlic',
+    ingredients:['Cod fillets (4)','Cauliflower (1 large head)','Garlic (6 cloves)','Unsalted butter (3 tbsp)','Milk (1/4 cup)','Lemon (1)','Fresh parsley','Olive oil','Salt & pepper'],
+    tags:['b12','cruciferous'] },
+  { id:'ms-sweet-black',     name:'Sweet Potato & Black Bean Tacos',
+    ingredients:['Sweet potatoes (2 large)','Black beans (2 cans, 15 oz each)','Corn tortillas (12)','Red onion (1)','Cilantro','Lime (2)','Avocado (2)','Cumin','Smoked paprika','Olive oil'],
+    tags:['fiber','magnesium','folate'] },
+  { id:'ms-kale-caesar',     name:'Kale Caesar with Grilled Chicken & Brazil Nuts',
+    ingredients:['Chicken breasts (4)','Lacinato kale (2 bunches)','Parmesan (1 cup, grated)','Brazil nuts (8, chopped)','Caesar dressing (or homemade: anchovy, garlic, lemon, olive oil, mustard)','Croutons','Olive oil','Salt & pepper'],
+    tags:['cruciferous','selenium','b-vitamins'] },
+];
+
+function seedMealsIfEmpty() {
+  const lib = getG('meals', null, 'library', null);
+  if (lib.length) return;
+  const seed = MEAL_SEEDS.map(m => ({...m, isSeed:true}));
+  setG('meals', null, 'library', null, seed);
+  lsSave(skey('meals', null, 'library', null));
+}
+
+// ISO week helpers (Monday start)
+function mondayOf(d) {
+  const x = new Date(d);
+  const day = x.getDay(); // 0=Sun..6=Sat
+  const diff = day === 0 ? -6 : 1 - day;
+  x.setDate(x.getDate() + diff);
+  x.setHours(0,0,0,0);
+  return x;
+}
+function isoWeekKey(d) {
+  // 'week-YYYY-Www' based on ISO week number
+  const t = new Date(d);
+  t.setHours(0,0,0,0);
+  t.setDate(t.getDate() + 3 - ((t.getDay()+6)%7)); // Thursday of the week
+  const firstThursday = new Date(t.getFullYear(),0,4);
+  firstThursday.setDate(firstThursday.getDate() + 3 - ((firstThursday.getDay()+6)%7));
+  const w = 1 + Math.round((t - firstThursday) / (7*86400000));
+  return 'week-' + t.getFullYear() + '-W' + String(w).padStart(2,'0');
+}
+function currentMealsWeekDate() {
+  const m = mondayOf(new Date());
+  m.setDate(m.getDate() + mealsWeekOffset * 7);
+  return m;
+}
+function currentMealsWeekKey() {
+  return isoWeekKey(currentMealsWeekDate());
+}
+function weekLabel(d) {
+  const m = mondayOf(d);
+  const end = new Date(m); end.setDate(end.getDate() + 6);
+  const opts = { month:'short', day:'numeric' };
+  return 'Week of ' + m.toLocaleDateString('en-US', opts) + ' – ' + end.toLocaleDateString('en-US', opts);
+}
+
+function getMealLibrary() { return getG('meals', null, 'library', null); }
+function getMealsWeek(weekKey) { return getG('meals', null, weekKey || currentMealsWeekKey(), null); }
+
+async function persistLibrary() { await persistKey(skey('meals', null, 'library', null)); }
+async function persistMealsWeek(weekKey) { await persistKey(skey('meals', null, weekKey || currentMealsWeekKey(), null)); }
+
+async function addMealToLibrary(name, ingredients) {
+  if (!name || !name.trim()) return;
+  const lib = getMealLibrary();
+  lib.push({ id: 'm-'+Date.now(), name: name.trim(), ingredients: ingredients.filter(x=>x&&x.trim()), tags: [], isSeed: false });
+  setG('meals', null, 'library', null, lib);
+  render();
+  await persistLibrary();
+}
+async function editMealInLibrary(id, name, ingredients) {
+  const lib = getMealLibrary();
+  const m = lib.find(x => x.id === id);
+  if (!m) return;
+  m.name = name.trim();
+  m.ingredients = ingredients.filter(x=>x&&x.trim());
+  setG('meals', null, 'library', null, lib);
+  render();
+  await persistLibrary();
+}
+async function delMealFromLibrary(id) {
+  const lib = getMealLibrary();
+  const m = lib.find(x => x.id === id);
+  if (!m || m.isSeed) return;
+  setG('meals', null, 'library', null, lib.filter(x => x.id !== id));
+  // Also purge from current week if present
+  const wk = currentMealsWeekKey();
+  const week = getMealsWeek(wk);
+  const cleaned = week.filter(x => x.mealId !== id);
+  if (cleaned.length !== week.length) {
+    setG('meals', null, wk, null, cleaned);
+    await persistMealsWeek(wk);
+  }
+  render();
+  await persistLibrary();
+}
+async function addToWeek(mealId) {
+  const wk = currentMealsWeekKey();
+  const week = getMealsWeek(wk);
+  week.push({ mealId, day: null });
+  setG('meals', null, wk, null, week);
+  render();
+  await persistMealsWeek(wk);
+}
+async function removeFromWeek(idx) {
+  const wk = currentMealsWeekKey();
+  const week = getMealsWeek(wk);
+  week.splice(idx, 1);
+  setG('meals', null, wk, null, week);
+  render();
+  await persistMealsWeek(wk);
+}
+async function cycleMealDay(idx) {
+  const wk = currentMealsWeekKey();
+  const week = getMealsWeek(wk);
+  const entry = week[idx];
+  if (!entry) return;
+  const cur = entry.day;
+  const order = [null, ...MEAL_DAYS];
+  const nextIdx = (order.indexOf(cur) + 1) % order.length;
+  entry.day = order[nextIdx];
+  setG('meals', null, wk, null, week);
+  render();
+  await persistMealsWeek(wk);
+}
+
+function buildGroceryList(weekKey) {
+  const week = getMealsWeek(weekKey || currentMealsWeekKey());
+  const lib = getMealLibrary();
+  const items = [];
+  week.forEach(e => {
+    const m = lib.find(x => x.id === e.mealId);
+    if (!m) return;
+    (m.ingredients || []).forEach(i => items.push(i.trim()));
+  });
+  // Dedupe by lowercase first-3-words match; keep first occurrence's original text
+  const seen = new Set();
+  const out = [];
+  items.forEach(i => {
+    const key = i.toLowerCase().replace(/\(.*?\)/g,'').replace(/\s+/g,' ').trim().split(' ').slice(0,3).join(' ');
+    if (!seen.has(key)) { seen.add(key); out.push(i); }
+  });
+  return out;
+}
+
+function renderMeals() {
+  // Week nav label
+  document.getElementById('meal-week-lbl').textContent = weekLabel(currentMealsWeekDate());
+
+  const lib = getMealLibrary();
+  const wk = currentMealsWeekKey();
+  const week = getMealsWeek(wk);
+
+  // This week's menu list
+  const listEl = document.getElementById('meal-week-list');
+  if (!week.length) {
+    listEl.innerHTML = '<div class="wm-empty">No meals picked yet. Tap "+ Add to week" on any meal below.</div>';
+  } else {
+    listEl.innerHTML = week.map((e, i) => {
+      const m = lib.find(x => x.id === e.mealId);
+      const nm = m ? m.name : '(deleted meal)';
+      const chipCls = e.day ? 'day-chip set' : 'day-chip';
+      const opts = ['<option value="">— Any day</option>']
+        .concat(MEAL_DAYS.map(d => '<option value="'+d+'"'+(e.day===d?' selected':'')+'>'+MEAL_DAY_LBL[d]+'</option>'))
+        .join('');
+      return '<div class="week-meal-row">'
+        + '<span class="week-meal-name">'+escHtml(nm)+'</span>'
+        + '<select class="'+chipCls+'" data-meal-set-day="'+i+'">'+opts+'</select>'
+        + '<button class="tdel" data-meal-week-remove="'+i+'">✕</button>'
+        + '</div>';
+    }).join('');
+  }
+
+  // Library — grouped card with per-row collapse, name only until tapped
+  const libEl = document.getElementById('meal-library');
+  document.getElementById('meal-lib-count').textContent = lib.length ? (lib.length + ' meal' + (lib.length===1?'':'s')) : '';
+  if (!lib.length) {
+    libEl.innerHTML = '<div class="wm-empty">No meals in library yet.</div>';
+  } else {
+    const rows = lib.map(m => {
+      const isOpen = expandedMeal === m.id;
+      const tagsHtml = (m.tags||[]).length ? '<div class="meal-tags">' + m.tags.map(t=>'<span class="meal-tag">'+escHtml(t)+'</span>').join('') + '</div>' : '';
+      const fullList = '<ul class="meal-full-list">' + (m.ingredients||[]).map(i => '<li>'+escHtml(i)+'</li>').join('') + '</ul>';
+      const delBtn = m.isSeed ? '' : '<button class="mcls" data-meal-del="'+m.id+'">✕ Delete</button>';
+      const editBtn = '<button class="mcls" data-meal-edit="'+m.id+'">✏️ Edit</button>';
+      return '<div class="meal-card'+(isOpen?' expanded':'')+'">'
+        + '<div class="meal-card-hdr" data-meal-toggle="'+m.id+'">'
+        +   '<div class="meal-name">'+escHtml(m.name)+'</div>'
+        +   '<span class="meal-chev">▾</span>'
+        + '</div>'
+        + '<div class="meal-card-body">'
+        +   '<div class="meal-body-label">Ingredients · serves 4</div>'
+        +   fullList
+        +   tagsHtml
+        +   '<div class="meal-actions">'
+        +     '<button class="abtn abtn-w" data-meal-add-to-week="'+m.id+'">+ Add to this week</button>'
+        +     editBtn + delBtn
+        +   '</div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+    libEl.innerHTML = '<div class="meal-group">' + rows + '</div>';
+  }
+}
+
+let _editingMealId = null;
+function openAddMealModal(existingId) {
+  _editingMealId = existingId || null;
+  const isEdit = !!existingId;
+  document.getElementById('meal-modal-title').textContent = isEdit ? 'Edit Meal' : 'New Meal';
+  if (isEdit) {
+    const m = getMealLibrary().find(x => x.id === existingId);
+    document.getElementById('meal-name-inp').value = m ? m.name : '';
+    document.getElementById('meal-ing-inp').value = m ? (m.ingredients||[]).join('\n') : '';
+  } else {
+    document.getElementById('meal-name-inp').value = '';
+    document.getElementById('meal-ing-inp').value = '';
+  }
+  document.getElementById('meal-add-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('meal-name-inp').focus(), 60);
+}
+async function saveMealFromModal() {
+  const name = document.getElementById('meal-name-inp').value.trim();
+  const ing = document.getElementById('meal-ing-inp').value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  if (!name) { document.getElementById('meal-name-inp').focus(); return; }
+  if (_editingMealId) await editMealInLibrary(_editingMealId, name, ing);
+  else await addMealToLibrary(name, ing);
+  document.getElementById('meal-add-modal').classList.remove('open');
+  _editingMealId = null;
+}
+function openGroceryModal() {
+  const items = buildGroceryList();
+  const wk = currentMealsWeekKey();
+  const week = getMealsWeek(wk);
+  document.getElementById('grocery-modal-sub').textContent = week.length + ' meals · ' + items.length + ' unique ingredients · ' + weekLabel(currentMealsWeekDate());
+  document.getElementById('grocery-list-txt').value = items.map(i => '- ' + i).join('\n') || '(No meals picked for this week yet.)';
+  document.getElementById('grocery-modal').classList.add('open');
+}
+
 // ─── POINTS ──────────────────────────────────────────────
 function statusPts(g) {
   if (g.status === 'done')    return g.maxPts || g.pts;
@@ -1283,8 +1690,8 @@ function grandTotal(yr, who) { return weeklyPtsYear(yr, who) + monthlyPtsYear(yr
 
 // ─── RENDER ──────────────────────────────────────────────
 function render() {
-  // Hide cal/scoreboard/mini on wedding + today tabs (those are not point-based)
-  const hideShared = curView === 'wedding' || curView === 'today';
+  // Hide cal/scoreboard/mini on wedding, today, and meals tabs (those are not point-based)
+  const hideShared = curView === 'wedding' || curView === 'today' || curView === 'meals';
   document.getElementById('cal-wrap').style.display    = hideShared ? 'none' : '';
   document.getElementById('scores-wrap').style.display = hideShared ? 'none' : '';
   document.getElementById('mini-wrap').style.display   = hideShared ? 'none' : '';
@@ -1300,6 +1707,7 @@ function render() {
   if (curView === 'yearly')     renderYearly();
   if (curView === 'scoreboard') renderSB();
   if (curView === 'wedding')    renderWedding();
+  if (curView === 'meals')      renderMeals();
 }
 
 function renderCal() {
@@ -2433,6 +2841,85 @@ document.addEventListener('click', function(e) {
     return;
   }
 
+  // Meals: info card toggle
+  if (e.target.closest('[data-meal-info-toggle]')) {
+    const card = document.getElementById('meal-info-card');
+    const body = document.getElementById('meal-info-body');
+    const open = card.classList.toggle('open');
+    body.style.display = open ? 'block' : 'none';
+    return;
+  }
+  // Meals: week nav
+  const wkNav = e.target.closest('[data-meal-week-nav]');
+  if (wkNav) {
+    mealsWeekOffset += (wkNav.dataset.mealWeekNav === 'next' ? 1 : -1);
+    render();
+    return;
+  }
+  // Meals: remove from week
+  const wkRemove = e.target.closest('[data-meal-week-remove]');
+  if (wkRemove) {
+    e.stopPropagation();
+    removeFromWeek(+wkRemove.dataset.mealWeekRemove);
+    return;
+  }
+  // Meals: expand/collapse card
+  const mToggle = e.target.closest('[data-meal-toggle]');
+  if (mToggle && !e.target.closest('.meal-card-body')) {
+    const id = mToggle.dataset.mealToggle;
+    expandedMeal = (expandedMeal === id ? null : id);
+    render();
+    return;
+  }
+  // Meals: add to week
+  const addToWk = e.target.closest('[data-meal-add-to-week]');
+  if (addToWk) {
+    e.stopPropagation();
+    addToWeek(addToWk.dataset.mealAddToWeek);
+    return;
+  }
+  // Meals: edit
+  const mEdit = e.target.closest('[data-meal-edit]');
+  if (mEdit) {
+    e.stopPropagation();
+    openAddMealModal(mEdit.dataset.mealEdit);
+    return;
+  }
+  // Meals: delete
+  const mDel = e.target.closest('[data-meal-del]');
+  if (mDel) {
+    e.stopPropagation();
+    if (confirm('Delete this meal from your library?')) delMealFromLibrary(mDel.dataset.mealDel);
+    return;
+  }
+  // Meals: open add-meal modal
+  if (e.target.id === 'meal-add-open') { openAddMealModal(null); return; }
+  if (e.target.id === 'meal-save-btn') { saveMealFromModal(); return; }
+  if (e.target.id === 'meal-cancel-btn' || (e.target.id === 'meal-add-modal' && e.target.classList.contains('modal-bg'))) {
+    document.getElementById('meal-add-modal').classList.remove('open');
+    _editingMealId = null;
+    return;
+  }
+  // Meals: grocery
+  if (e.target.id === 'meal-grocery-btn') { openGroceryModal(); return; }
+  if (e.target.id === 'grocery-close-btn' || (e.target.id === 'grocery-modal' && e.target.classList.contains('modal-bg'))) {
+    document.getElementById('grocery-modal').classList.remove('open');
+    return;
+  }
+  if (e.target.id === 'grocery-copy-btn') {
+    const txt = document.getElementById('grocery-list-txt');
+    txt.select();
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt.value);
+      else document.execCommand('copy');
+      const b = document.getElementById('grocery-copy-btn');
+      const orig = b.textContent;
+      b.textContent = '✓ Copied!';
+      setTimeout(()=>{ b.textContent = orig; }, 1500);
+    } catch (err) { alert('Copy failed. Long-press the text and copy manually.'); }
+    return;
+  }
+
   // Wedding filter pill (owner) — also returns to task view
   const wPill = e.target.closest('[data-wed-filter]');
   if (wPill) {
@@ -2697,7 +3184,7 @@ document.addEventListener('click', function(e) {
     setFbStatus('warn','Connecting...');
     initFirebase().then(ok => {
       if (ok) setFbStatus('ok','Connected! Synced across devices.');
-      else setFbStatus('err','Could not connect. Check the database URL and try again.');
+      else setFbStatus('err','Could not connect: ' + (fbLastError || 'unknown'));
     });
     return;
   }
@@ -2713,7 +3200,7 @@ document.addEventListener('click', function(e) {
     setFbStatus('warn','Reconnecting...');
     initFirebase().then(ok => {
       if (ok) setFbStatus('ok','Reconnected. Live syncing now.');
-      else setFbStatus('err','Reconnect failed. Check your internet and the databaseURL in your config.');
+      else setFbStatus('err','Reconnect failed: ' + (fbLastError || 'unknown'));
     });
     return;
   }
@@ -2763,6 +3250,19 @@ document.addEventListener('change', function(e) {
     importData(e.target.files[0]);
     e.target.value = '';
   }
+  // Meals: day picker on a week row
+  if (e.target.matches('[data-meal-set-day]')) {
+    const idx = +e.target.dataset.mealSetDay;
+    const val = e.target.value || null;
+    const wk = currentMealsWeekKey();
+    const week = getMealsWeek(wk);
+    if (week[idx]) {
+      week[idx].day = val;
+      setG('meals', null, wk, null, week);
+      render();
+      persistMealsWeek(wk);
+    }
+  }
 });
 
 document.addEventListener('keydown', function(e) {
@@ -2787,6 +3287,7 @@ async function init() {
   lsLoad();
   seedIfEmpty();
   seedWeddingIfEmpty();
+  seedMealsIfEmpty();
   const newCats = seedDanielTasks();
 
   // Try Firebase if configured
