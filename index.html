@@ -315,6 +315,19 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 .meal-lib-hdr .meal-section-hdr{margin:0;}
 .meal-lib-count{font-size:0.7rem;color:var(--muted);font-weight:700;}
 
+/* GROCERY LIST (persistent) */
+.grocery-note{font-size:0.72rem;color:var(--muted);font-style:italic;margin-bottom:0.45rem;}
+.gitem{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:0.5rem 0.7rem;margin-bottom:0.35rem;display:flex;align-items:center;gap:0.55rem;cursor:pointer;transition:all 0.15s;}
+.gitem:hover{border-color:#4ade80;}
+.gitem.done{opacity:0.55;}
+.gitem.done .gitxt{text-decoration:line-through;}
+.gick{width:20px;height:20px;border-radius:6px;border:2px solid #4ade80;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;transition:all 0.15s;}
+.gitem.done .gick{background:#4ade80;color:#000;}
+.gitxt{flex:1;font-size:0.85rem;font-weight:600;}
+.gidel{background:none;border:none;color:#ffffff20;cursor:pointer;font-size:0.85rem;padding:0 0.2rem;flex-shrink:0;transition:color 0.2s;}
+.gidel:hover{color:var(--red);}
+.gempty{color:var(--muted);font-size:0.78rem;font-style:italic;text-align:center;padding:0.5rem 0;}
+
 /* BUDGET VIEW */
 .bud-goal-num{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;text-align:center;margin:0.4rem 0 0.2rem;}
 .bud-goal-sub{text-align:center;font-size:0.72rem;color:var(--muted);margin-bottom:0.6rem;}
@@ -750,7 +763,15 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 
     <div class="meal-section-hdr">This Week's Menu</div>
     <div id="meal-week-list"></div>
-    <button class="abtn abtn-w" id="meal-grocery-btn" style="width:100%;margin-bottom:1rem;">🛒 Build Grocery List</button>
+    <div class="meal-section-hdr">🧺 Grocery List</div>
+    <div class="grocery-note">Add anything you're running low on. Fresh list each week (matches the week nav above).</div>
+    <div id="grocery-list-view"></div>
+    <div class="add-form" style="margin-top:0.4rem;margin-bottom:1rem;">
+      <input id="grocery-add-inp" placeholder="Add an item... (eggs, milk, etc.)" />
+      <button class="abtn abtn-w" id="grocery-add-btn">+ Add to List</button>
+    </div>
+
+    <button class="abtn abtn-w" id="meal-grocery-btn" style="width:100%;margin-bottom:1rem;">🛒 Build Meals</button>
 
     <div class="meal-lib-hdr">
       <div class="meal-section-hdr">Meal Library</div>
@@ -1693,6 +1714,63 @@ function renderMeals() {
     }).join('');
     libEl.innerHTML = '<div class="meal-group">' + rows + '</div>';
   }
+
+  // Persistent grocery list (independent of the week's picked meals)
+  renderGroceryList();
+}
+
+// ─── PER-WEEK GROCERY LIST (resets each week) ────────────
+// Sub-key: 'grocery-week-YYYY-Www' — tied to the meals-view week nav.
+// Navigating to next week shows a fresh list; the previous week's list is kept
+// in storage under its own key (harmless history), but the UI only shows the
+// current selected week's list.
+function currentGrocerySub() { return 'grocery-' + currentMealsWeekKey(); }
+function getGroceryList() { return getG('meals', null, currentGrocerySub(), null); }
+function setGroceryListData(list) { setG('meals', null, currentGrocerySub(), null, list); }
+async function persistGroceryList() { await persistKey(skey('meals', null, currentGrocerySub(), null)); }
+
+async function addGroceryItem(text) {
+  const t = (text || '').trim();
+  if (!t) return;
+  const list = getGroceryList();
+  list.push({ id: 'gr-'+Date.now(), text: t, done: false });
+  setGroceryListData(list);
+  render();
+  await persistGroceryList();
+}
+async function toggleGroceryItem(id) {
+  const list = getGroceryList();
+  const it = list.find(x => x.id === id);
+  if (!it) return;
+  it.done = !it.done;
+  setGroceryListData(list);
+  render();
+  await persistGroceryList();
+}
+async function delGroceryItem(id) {
+  const list = getGroceryList().filter(x => x.id !== id);
+  setGroceryListData(list);
+  render();
+  await persistGroceryList();
+}
+
+function renderGroceryList() {
+  const el = document.getElementById('grocery-list-view');
+  if (!el) return;
+  const list = getGroceryList();
+  // Sort: not-done first, done at the bottom
+  const sorted = list.slice().sort((a,b) => (a.done?1:0) - (b.done?1:0));
+  if (!sorted.length) {
+    el.innerHTML = '<div class="gempty">Nothing on the list yet. Add anything you\'re running low on.</div>';
+    return;
+  }
+  el.innerHTML = sorted.map(it =>
+    '<div class="gitem'+(it.done?' done':'')+'" data-grocery-item="'+it.id+'">'
+    + '<div class="gick">'+(it.done?'✓':'')+'</div>'
+    + '<div class="gitxt">'+escHtml(it.text)+'</div>'
+    + '<button class="gidel" data-grocery-del="'+it.id+'">✕</button>'
+    + '</div>'
+  ).join('');
 }
 
 let _editingMealId = null;
@@ -3122,6 +3200,30 @@ document.addEventListener('click', function(e) {
   }
   // Meals: grocery
   if (e.target.id === 'meal-grocery-btn') { openGroceryModal(); return; }
+
+  // Meals: persistent per-week grocery list — add
+  if (e.target.id === 'grocery-add-btn') {
+    const inp = document.getElementById('grocery-add-inp');
+    const txt = (inp.value || '').trim();
+    if (!txt) { inp.focus(); return; }
+    addGroceryItem(txt);
+    inp.value = '';
+    inp.focus();
+    return;
+  }
+  // Meals: grocery item delete
+  const grocDel = e.target.closest('[data-grocery-del]');
+  if (grocDel) {
+    e.stopPropagation();
+    delGroceryItem(grocDel.dataset.groceryDel);
+    return;
+  }
+  // Meals: grocery item check/uncheck
+  const grocItem = e.target.closest('[data-grocery-item]');
+  if (grocItem) {
+    toggleGroceryItem(grocItem.dataset.groceryItem);
+    return;
+  }
   if (e.target.id === 'grocery-close-btn' || (e.target.id === 'grocery-modal' && e.target.classList.contains('modal-bg'))) {
     document.getElementById('grocery-modal').classList.remove('open');
     return;
@@ -3591,6 +3693,10 @@ document.addEventListener('keydown', function(e) {
   if (e.target.id === 'tpl-add-inp') {
     e.preventDefault();
     document.getElementById('tpl-add-btn').click();
+  }
+  if (e.target.id === 'grocery-add-inp') {
+    e.preventDefault();
+    document.getElementById('grocery-add-btn').click();
   }
 });
 
