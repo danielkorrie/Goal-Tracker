@@ -52,6 +52,7 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 .tab.active{background:linear-gradient(135deg,var(--d),var(--c));color:#fff;}
 .tab.wedding.active{background:linear-gradient(135deg,#ff8fb1,#ffd6e6);color:#5a1a30;}
 .tab.today.active{background:linear-gradient(135deg,#a78bff,#d8c4ff);color:#1a1030;}
+.tab.home.active{background:linear-gradient(135deg,#7be0a8,#c4f0d4);color:#0a2015;}
 
 /* CALENDAR */
 .cal{background:var(--card2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:0.7rem 1rem;}
@@ -230,6 +231,13 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 
 /* TODAY VIEW */
 .today-hero{background:linear-gradient(135deg,#a78bff,#6aa9ff);border-radius:18px;padding:1.1rem;text-align:center;margin-bottom:1rem;color:#fff;}
+.home-hero{background:linear-gradient(135deg,#4ade80,#22d3ee);border-radius:18px;padding:1.2rem;text-align:center;margin-bottom:1rem;color:#0a2015;position:relative;overflow:hidden;}
+.home-hero h2{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;margin-bottom:0.2rem;}
+.home-hero .date{font-size:0.95rem;font-weight:700;opacity:0.9;}
+.home-hero .overall-prog{margin-top:0.9rem;}
+.home-hero .overall-prog .prog-lbl{color:#0a2015;opacity:0.9;}
+.home-hero .overall-prog .prog-bar{background:#0a201540;}
+.home-hero .overall-prog .prog-fill{background:#0a2015;}
 .today-who{font-size:0.78rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;opacity:0.9;margin-bottom:0.2rem;}
 .today-date{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:2px;}
 .today-prog{margin-top:0.6rem;}
@@ -466,6 +474,7 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
   <button class="tab" data-view="monthly">📆 Monthly</button>
   <button class="tab" data-view="yearly">🎯 Yearly</button>
   <button class="tab" data-view="meals">🍽️ Meals</button>
+  <button class="tab home" data-view="home">🏠 Home</button>
   <button class="tab wedding" data-view="wedding">💍 Wedding</button>
   <button class="tab" data-view="scoreboard">🏆 Scoreboard</button>
 </div>
@@ -779,6 +788,29 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
     </div>
     <div id="meal-library"></div>
     <div class="meal-add-row" id="meal-add-open">+ Add a new meal</div>
+  </div>
+
+  <!-- HOME VIEW -->
+  <div class="view" id="view-home">
+    <div class="home-hero">
+      <h2>🏠 Home</h2>
+      <div class="date">Buys, repairs, upgrades &amp; ideas</div>
+      <div class="overall-prog">
+        <div class="prog-lbl"><span>Overall Progress</span><span id="home-prog-pct">0%</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="home-prog-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div id="home-cats"></div>
+    <div class="add-form" id="home-add-form" style="margin-top:0.7rem;">
+      <input id="home-add-inp" placeholder="Add a home item..." />
+      <select id="home-add-cat"></select>
+      <select id="home-add-pri">
+        <option value="urgent">🔴 Urgent</option>
+        <option value="soon" selected>🟡 Soon</option>
+        <option value="later">⚪ Later</option>
+      </select>
+      <button class="abtn abtn-w" id="home-add-btn" style="background:#4ade80;color:#0a2015;">+ Add Home Item</button>
+    </div>
   </div>
 
   <!-- WEDDING VIEW -->
@@ -1129,6 +1161,7 @@ function skey(period, yr, sub, who) {
   if (period === 'meals')   return STORAGE_PREFIX + 'meals-' + sub; // sub='library' or 'week-YYYY-Www'
   if (period === 'weekly-tpl')    return STORAGE_PREFIX + 'wt-' + who;                                  // who = daniel|chardae|together
   if (period === 'weekly-tpl-mk') return STORAGE_PREFIX + 'wt-seeded-' + yr + '-' + sub + '-' + who;    // sub = weekNum
+  if (period === 'home')          return STORAGE_PREFIX + 'home-' + sub;                                // sub = catId
   return '';
 }
 function getG(period, yr, sub, who) { return DATA[skey(period, yr, sub, who)] || []; }
@@ -1345,6 +1378,18 @@ function seedIfEmpty() {
   // Persist seed
   Object.keys(DATA).forEach(k => lsSave(k));
 }
+
+// ─── HOME CATEGORIES ─────────────────────────────────────
+const HOME_CATEGORIES = [
+  {id:'kitchen',  icon:'🍳', name:'Kitchen',              tip:'Cookware, appliances, upgrades.'},
+  {id:'living',   icon:'🛋️', name:'Living Room',          tip:'Furniture, decor, entertainment.'},
+  {id:'bedroom',  icon:'🛏️', name:'Bedroom',              tip:'Bedding, storage, layout.'},
+  {id:'bathroom', icon:'🚿', name:'Bathroom',             tip:'Fixtures, storage, upgrades.'},
+  {id:'outdoor',  icon:'🌳', name:'Outdoor / Yard',       tip:'Lawn, patio, exterior.'},
+  {id:'repair',   icon:'🔧', name:'Repairs & Maintenance',tip:'Things to fix or maintain.'},
+  {id:'buy',      icon:'🛒', name:'To Buy',               tip:'Shopping list for the house.'},
+];
+let openHomeCats = new Set();
 
 // ─── WEDDING SEED ────────────────────────────────────────
 const WED_CATEGORIES = [
@@ -1838,8 +1883,8 @@ function grandTotal(yr, who) { return weeklyPtsYear(yr, who) + monthlyPtsYear(yr
 
 // ─── RENDER ──────────────────────────────────────────────
 function render() {
-  // Hide cal/scoreboard/mini on wedding, today, and meals tabs (those are not point-based)
-  const hideShared = curView === 'wedding' || curView === 'today' || curView === 'meals';
+  // Hide cal/scoreboard/mini on wedding, today, meals, and home tabs (those are not point-based)
+  const hideShared = curView === 'wedding' || curView === 'today' || curView === 'meals' || curView === 'home';
   document.getElementById('cal-wrap').style.display    = hideShared ? 'none' : '';
   document.getElementById('scores-wrap').style.display = hideShared ? 'none' : '';
   document.getElementById('mini-wrap').style.display   = hideShared ? 'none' : '';
@@ -1856,6 +1901,7 @@ function render() {
   if (curView === 'scoreboard') renderSB();
   if (curView === 'wedding')    renderWedding();
   if (curView === 'meals')      renderMeals();
+  if (curView === 'home')       renderHome();
 }
 
 function renderCal() {
@@ -1974,6 +2020,9 @@ function buildList(goals, period, yr, sub, who) {
       + '</div></div>'
       + '<div class="gpts">'+(earnedPts>0?'+'+earnedPts:'')+'</div>'
       + '<button class="tact" data-goal-edit="'+g.id+'" data-period="'+period+'" data-yr="'+yr+'" data-sub="'+subStr+'" data-who="'+who+'" title="Edit">✏️</button>'
+      + (period==='weekly' && !isDone
+          ? '<button class="tact tmove" data-week-move="'+g.id+'" data-yr="'+yr+'" data-sub="'+subStr+'" data-who="'+who+'" title="Move to next week">↪</button>'
+          : '')
       + '<button class="gdel" data-del="'+g.id+'" data-period="'+period+'" data-yr="'+yr+'" data-sub="'+subStr+'" data-who="'+who+'">✕</button>'
       + '</div>';
   }).join('');
@@ -2097,15 +2146,19 @@ function isoAddDays(iso, n) {
 const WEEKDAY_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const WEEKDAY_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 function weekDates() {
-  // Returns Mon-Sun of the calendar week containing today
+  // Returns Mon-Sun of the calendar week containing today. From Saturday
+  // (dow=6) or Sunday (dow=0), also appends next week's Mon-Sun so the day
+  // picker can plan into next week without waiting for Monday to roll over.
   const now = new Date();
-  const dow = now.getDay(); // 0=Sun
+  const dow = now.getDay(); // 0=Sun, 6=Sat
   const offsetToMon = dow === 0 ? -6 : 1 - dow;
   const monday = new Date(now);
   monday.setDate(monday.getDate() + offsetToMon);
   monday.setHours(0,0,0,0);
+  const extendIntoNextWeek = (dow === 0 || dow === 6);
+  const daysToShow = extendIntoNextWeek ? 14 : 7;
   const dates = [];
-  for (let i=0; i<7; i++) {
+  for (let i=0; i<daysToShow; i++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
     dates.push({
@@ -2193,11 +2246,13 @@ async function toggleTodayItem(id) {
   const list = getTodayList(date);
   const it = list.find(x => x.id === id);
   if (!it) return;
-  it.done = !it.done;
-  setTodayListData(date, list);
+  // Check = delete (with undo). No strike-through, item is gone.
+  lastDeleted = { kind:'today', date, item: JSON.parse(JSON.stringify(it)) };
+  setTodayListData(date, list.filter(x => x.id !== id));
   render();
   await persistToday(date);
-  if (it.done) doBurst();
+  doBurst();
+  showUndoToast('✓ Done "'+it.text+'"');
 }
 async function delTodayItem(id, dateOverride) {
   const date = dateOverride || todayISO();
@@ -2705,6 +2760,124 @@ async function delWedItem(catId, itemId) {
   showUndoToast('Deleted "'+it.text+'"');
 }
 
+// ─── HOME RENDER + CRUD ──────────────────────────────────
+function renderHome() {
+  // Overall progress
+  let totalDone = 0, totalAll = 0;
+  HOME_CATEGORIES.forEach(cat => {
+    const items = getG('home', null, cat.id, null);
+    totalAll += items.length;
+    totalDone += items.filter(i => i.done).length;
+  });
+  const pct = totalAll ? Math.round(totalDone/totalAll*100) : 0;
+  document.getElementById('home-prog-pct').textContent = totalDone + '/' + totalAll + ' · ' + pct + '%';
+  document.getElementById('home-prog-fill').style.width = pct + '%';
+
+  // Categories
+  let html = '';
+  HOME_CATEGORIES.forEach(cat => {
+    const items = getG('home', null, cat.id, null);
+    const done = items.filter(i => i.done).length;
+    const catPct = items.length ? Math.round(done/items.length*100) : 0;
+    const isOpen = openHomeCats.has(cat.id);
+
+    let itemsHtml = '<div class="cat-tip">'+escHtml(cat.tip)+'</div>';
+    if (!items.length) {
+      itemsHtml += '<div class="empty">No items yet.</div>';
+    } else {
+      const priOrder = {urgent:0, soon:1, later:2};
+      const sorted = items.slice().sort((a,b) => {
+        if (a.done !== b.done) return a.done ? 1 : -1;
+        return (priOrder[a.pri||'soon']||1) - (priOrder[b.pri||'soon']||1);
+      });
+      sorted.forEach(it => {
+        const priBadge = it.done ? '' : '<span class="wbadge '+(it.pri||'soon')+'">'+(it.pri||'soon')+'</span>';
+        itemsHtml += '<div class="witem'+(it.done?' done':'')+'" data-home-item="'+it.id+'" data-cat="'+cat.id+'">'
+          + '<div class="wck">'+(it.done?'✓':'')+'</div>'
+          + '<div class="wtxt">'+escHtml(it.text)+'</div>'
+          + priBadge
+          + '<button class="tact" data-home-edit="'+it.id+'" data-cat="'+cat.id+'" title="Edit">✏️</button>'
+          + '<button class="wdel" data-home-del="'+it.id+'" data-cat="'+cat.id+'">✕</button>'
+          + '</div>';
+      });
+    }
+
+    html += '<div class="cat-card'+(isOpen?' open':'')+'" data-cat-id="'+cat.id+'">'
+      + '<div class="cat-hdr" data-toggle-home-cat="'+cat.id+'">'
+      + '<div class="cat-icon">'+cat.icon+'</div>'
+      + '<div class="cat-name">'+escHtml(cat.name)+'</div>'
+      + '<div class="cat-count">'+done+'/'+items.length+'</div>'
+      + '<div class="cat-chevron">▾</div>'
+      + '</div>'
+      + '<div class="cat-prog"><div class="cat-prog-fill" style="width:'+catPct+'%;background:linear-gradient(90deg,#4ade80,#c4f0d4);"></div></div>'
+      + '<div class="cat-body">'+itemsHtml+'</div>'
+      + '</div>';
+  });
+  document.getElementById('home-cats').innerHTML = html;
+
+  // Populate category dropdown once
+  const sel = document.getElementById('home-add-cat');
+  if (sel.options.length === 0) {
+    HOME_CATEGORIES.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat.id;
+      opt.textContent = cat.icon + ' ' + cat.name;
+      sel.appendChild(opt);
+    });
+  }
+}
+
+async function toggleHomeItem(catId, itemId) {
+  const items = getG('home', null, catId, null);
+  const it = items.find(x => x.id === itemId);
+  if (!it) return;
+  it.done = !it.done;
+  setG('home', null, catId, null, items);
+  render();
+  await persistKey(skey('home', null, catId, null));
+  if (it.done) doBurst();
+}
+
+async function addHomeItem() {
+  const inp = document.getElementById('home-add-inp');
+  const cat = document.getElementById('home-add-cat').value;
+  const pri = document.getElementById('home-add-pri').value;
+  const txt = inp.value.trim();
+  if (!txt) { inp.focus(); return; }
+  const items = getG('home', null, cat, null);
+  items.push({ id: 'h'+Date.now(), text: txt, pri, done: false });
+  setG('home', null, cat, null, items);
+  inp.value = '';
+  openHomeCats.add(cat);
+  render();
+  await persistKey(skey('home', null, cat, null));
+}
+
+async function editHomeItem(catId, itemId) {
+  const items = getG('home', null, catId, null);
+  const it = items.find(x => x.id === itemId);
+  if (!it) return;
+  const next = prompt('Edit item:', it.text || '');
+  if (next == null) return;
+  const t = next.trim();
+  if (!t) return;
+  it.text = t;
+  setG('home', null, catId, null, items);
+  render();
+  await persistKey(skey('home', null, catId, null));
+}
+
+async function delHomeItem(catId, itemId) {
+  const items = getG('home', null, catId, null);
+  const it = items.find(x => x.id === itemId);
+  if (!it) return;
+  lastDeleted = { kind:'home', cat:catId, item:JSON.parse(JSON.stringify(it)) };
+  setG('home', null, catId, null, items.filter(x => x.id !== itemId));
+  render();
+  await persistKey(skey('home', null, catId, null));
+  showUndoToast('Deleted "'+it.text+'"');
+}
+
 // ─── EDIT GOAL TEXT ──────────────────────────────────────
 async function editGoal(period, yr, sub, who, id) {
   const goals = getG(period, yr, sub, who);
@@ -2753,6 +2926,35 @@ async function addGoal(period, who) {
   inp.value = '';
   render();
   await persistKey(skey(period, yr, sub, who));
+}
+
+// ─── MOVE WEEKLY GOAL TO NEXT WEEK ──────────────────────
+async function moveWeeklyGoalToNext(fromYr, fromWk, who, goalId) {
+  const cur = getG('weekly', fromYr, fromWk, who);
+  const g = cur.find(x => x.id === goalId);
+  if (!g) return;
+  // Compute next week with year rollover
+  let toYr = fromYr, toWk = fromWk + 1;
+  if (toWk > weeksInYear(toYr)) { toYr += 1; toWk = 1; }
+  // Build the moved goal: fresh status (undone), carried flag, new id
+  const moved = {
+    id: who[0]+'w'+Date.now(),
+    text: g.text,
+    pts: g.pts,
+    maxPts: g.maxPts || g.pts,
+    status: null,
+    done: false,
+    carried: true
+  };
+  // Remove from source, add to destination
+  setG('weekly', fromYr, fromWk, who, cur.filter(x => x.id !== goalId));
+  const dest = getG('weekly', toYr, toWk, who);
+  dest.push(moved);
+  setG('weekly', toYr, toWk, who, dest);
+  render();
+  await persistKey(skey('weekly', fromYr, fromWk, who));
+  await persistKey(skey('weekly', toYr, toWk, who));
+  showAddToast('↪ Moved to next week (' + weekLabel(toYr, toWk) + ')');
 }
 
 // ─── WEEKLY TEMPLATES ("PRE-WEEKLY GOALS") ──────────────
@@ -2941,6 +3143,19 @@ async function doUndo() {
     items.push(lastDeleted.item);
     setG('wedding', null, lastDeleted.cat, null, items);
     await persistKey(skey('wedding', null, lastDeleted.cat, null));
+  } else if (lastDeleted.kind === 'home') {
+    const items = getG('home', null, lastDeleted.cat, null);
+    items.push(lastDeleted.item);
+    setG('home', null, lastDeleted.cat, null, items);
+    await persistKey(skey('home', null, lastDeleted.cat, null));
+  } else if (lastDeleted.kind === 'today') {
+    const me = getMe();
+    if (me) {
+      const list = getG('today', null, lastDeleted.date, me);
+      list.push(lastDeleted.item);
+      setG('today', null, lastDeleted.date, me, list);
+      await persistKey(skey('today', null, lastDeleted.date, me));
+    }
   } else if (lastDeleted.kind === 'goal') {
     const {period, yr, sub, who, item} = lastDeleted;
     const goals = getG(period, yr, sub, who);
@@ -3110,6 +3325,15 @@ document.addEventListener('click', function(e) {
     e.stopPropagation();
     const sub = delBtn.dataset.sub==='null' ? null : +delBtn.dataset.sub;
     requestDelete(delBtn.dataset.period, +delBtn.dataset.yr, sub, delBtn.dataset.who, delBtn.dataset.del);
+    return;
+  }
+
+  // Weekly goal: move to next week
+  const weekMove = e.target.closest('[data-week-move]');
+  if (weekMove) {
+    e.stopPropagation();
+    const sub = weekMove.dataset.sub==='null' ? null : +weekMove.dataset.sub;
+    moveWeeklyGoalToNext(+weekMove.dataset.yr, sub, weekMove.dataset.who, weekMove.dataset.weekMove);
     return;
   }
 
@@ -3337,6 +3561,37 @@ document.addEventListener('click', function(e) {
 
   // Wedding add
   if (e.target.id === 'wed-add-btn') { addWedItem(); return; }
+
+  // Home: category expand/collapse
+  const homeCatTog = e.target.closest('[data-toggle-home-cat]');
+  if (homeCatTog) {
+    const id = homeCatTog.dataset.toggleHomeCat;
+    if (openHomeCats.has(id)) openHomeCats.delete(id); else openHomeCats.add(id);
+    render();
+    return;
+  }
+  // Home: edit item
+  const hEdit = e.target.closest('[data-home-edit]');
+  if (hEdit) {
+    e.stopPropagation();
+    editHomeItem(hEdit.dataset.cat, hEdit.dataset.homeEdit);
+    return;
+  }
+  // Home: delete item
+  const hDel = e.target.closest('[data-home-del]');
+  if (hDel) {
+    e.stopPropagation();
+    delHomeItem(hDel.dataset.cat, hDel.dataset.homeDel);
+    return;
+  }
+  // Home: toggle item
+  const hItem = e.target.closest('[data-home-item]');
+  if (hItem) {
+    toggleHomeItem(hItem.dataset.cat, hItem.dataset.homeItem);
+    return;
+  }
+  // Home: add
+  if (e.target.id === 'home-add-btn') { addHomeItem(); return; }
 
   // Today: identity pick
   const idBtn = e.target.closest('[data-me]');
@@ -3697,6 +3952,10 @@ document.addEventListener('keydown', function(e) {
   if (e.target.id === 'grocery-add-inp') {
     e.preventDefault();
     document.getElementById('grocery-add-btn').click();
+  }
+  if (e.target.id === 'home-add-inp') {
+    e.preventDefault();
+    document.getElementById('home-add-btn').click();
   }
 });
 
