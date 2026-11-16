@@ -417,6 +417,9 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 .tpl-star.on{color:var(--gold);}
 .tpl-del{background:none;border:none;color:#ffffff30;cursor:pointer;font-size:0.85rem;padding:0 0.2rem;flex-shrink:0;transition:color 0.2s;}
 .tpl-del:hover{color:var(--red);}
+.tpl-row-dim{opacity:0.45;cursor:not-allowed;}
+.tpl-row-dim .tpl-row-text{text-decoration:line-through;}
+.tpl-row-added{font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;padding:0.15rem 0.45rem;border-radius:50px;flex-shrink:0;background:#94a3b830;color:#94a3b8;}
 .tpl-list{max-height:50vh;overflow-y:auto;margin-top:0.4rem;}
 .tpl-btn-row{display:flex;gap:0.35rem;margin-top:0.4rem;}
 .tpl-btn{flex:1;background:var(--card2);border:1px dashed var(--border);color:var(--muted);padding:0.4rem 0.5rem;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;transition:all 0.15s;}
@@ -1095,6 +1098,22 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
   </div>
 </div>
 
+<!-- EDIT TEXT MODAL (reusable for goals, wedding, home, today, templates) -->
+<div class="modal-bg" id="edit-text-modal">
+  <div class="modal">
+    <div style="font-size:1.7rem;">✏️</div>
+    <h2 id="edit-text-title">Edit</h2>
+    <div class="left">
+      <label for="edit-text-input" id="edit-text-label">Text</label>
+      <input id="edit-text-input" type="text" autocomplete="off" />
+    </div>
+    <div class="mbtns">
+      <button class="myes" id="edit-text-save">Save</button>
+      <button class="mcls" id="edit-text-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast">
   <span id="toast-msg"></span>
@@ -1115,6 +1134,33 @@ const CUR_MONTH = now.getMonth();
 const CUR_WEEK  = isoWeek(now);
 const FB_CONFIG_KEY = 'gt-fb-config';
 const STORAGE_PREFIX = 'gt5-';
+
+// Random-suffixed id so two creations in the same millisecond can't collide.
+function newId(prefix) {
+  return prefix + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+}
+
+// Reusable in-app edit-text modal. Replaces native prompt() across the app.
+let _editTextCallback = null;
+function openEditText(title, value, onSave) {
+  _editTextCallback = onSave;
+  document.getElementById('edit-text-title').textContent = title;
+  const inp = document.getElementById('edit-text-input');
+  inp.value = value || '';
+  document.getElementById('edit-text-modal').classList.add('open');
+  setTimeout(() => { inp.focus(); inp.select(); }, 60);
+}
+function closeEditText() {
+  document.getElementById('edit-text-modal').classList.remove('open');
+  _editTextCallback = null;
+}
+function submitEditText() {
+  const v = document.getElementById('edit-text-input').value.trim();
+  if (!v) { document.getElementById('edit-text-input').focus(); return; }
+  const cb = _editTextCallback;
+  closeEditText();
+  if (cb) cb(v);
+}
 
 // ─── STATE ───────────────────────────────────────────────
 let DATA   = {};
@@ -1621,7 +1667,7 @@ async function persistMealsWeek(weekKey) { await persistKey(skey('meals', null, 
 async function addMealToLibrary(name, ingredients) {
   if (!name || !name.trim()) return;
   const lib = getMealLibrary();
-  lib.push({ id: 'm-'+Date.now(), name: name.trim(), ingredients: ingredients.filter(x=>x&&x.trim()), tags: [], isSeed: false });
+  lib.push({ id: newId('m'), name: name.trim(), ingredients: ingredients.filter(x=>x&&x.trim()), tags: [], isSeed: false });
   setG('meals', null, 'library', null, lib);
   render();
   await persistLibrary();
@@ -1778,7 +1824,7 @@ async function addGroceryItem(text) {
   const t = (text || '').trim();
   if (!t) return;
   const list = getGroceryList();
-  list.push({ id: 'gr-'+Date.now(), text: t, done: false });
+  list.push({ id: newId('gr'), text: t, done: false });
   setGroceryListData(list);
   render();
   await persistGroceryList();
@@ -2218,7 +2264,7 @@ async function addTodayItem(text, targetDate) {
   const today = todayISO();
   const date = targetDate || today;
   const list = getTodayList(date);
-  list.push({ id: 't-' + Date.now(), text: text, done: false });
+  list.push({ id: newId('t'), text: text, done: false });
   setTodayListData(date, list);
   render();
   await persistToday(date);
@@ -2252,7 +2298,7 @@ async function toggleTodayItem(id) {
   render();
   await persistToday(date);
   doBurst();
-  showUndoToast('✓ Done "'+it.text+'"');
+  showUndoToast('✓ Done. Tap undo if wrong.');
 }
 async function delTodayItem(id, dateOverride) {
   const date = dateOverride || todayISO();
@@ -2266,14 +2312,12 @@ async function editTodayItem(id, dateOverride) {
   const list = getTodayList(date);
   const it = list.find(x => x.id === id);
   if (!it) return;
-  const next = prompt('Edit goal:', it.text || '');
-  if (next == null) return;
-  const t = next.trim();
-  if (!t) return;
-  it.text = t;
-  setTodayListData(date, list);
-  render();
-  await persistToday(date);
+  openEditText('Edit goal', it.text || '', async (t) => {
+    it.text = t;
+    setTodayListData(date, list);
+    render();
+    await persistToday(date);
+  });
 }
 let _moveCtx = null; // { id, fromDate }
 function openMoveModal(id, fromDate) {
@@ -2482,7 +2526,7 @@ async function persistBudget(kind) {
 }
 async function addBudgetEntry(kind, amount, label, who) {
   const list = getBudgetList(kind);
-  list.push({ id: kind[0]+'-'+Date.now(), amount: +amount, label: label || '', who: who || 'Daniel' });
+  list.push({ id: newId(kind[0]), amount: +amount, label: label || '', who: who || 'Daniel' });
   setBudgetList(kind, list);
   render();
   await persistBudget(kind);
@@ -2592,18 +2636,26 @@ function renderBudget() {
 
 function renderWedding() {
   migrateWedOwners();
-  // Countdown
+  // Countdown (or "married" state if the wedding date has passed)
   const today = new Date();
   today.setHours(0,0,0,0);
   const diffMs = WEDDING_DATE - today;
-  const days = Math.max(0, Math.floor(diffMs / 86400000));
-  const weeks = Math.floor(days / 7);
-  const months = Math.max(0, (WEDDING_DATE.getFullYear()-today.getFullYear())*12 + (WEDDING_DATE.getMonth()-today.getMonth()) - (today.getDate() > WEDDING_DATE.getDate() ? 1 : 0));
 
   let cdHtml = '';
-  cdHtml += '<div class="cd-box"><div class="cd-num">'+months+'</div><div class="cd-lbl">Months</div></div>';
-  cdHtml += '<div class="cd-box"><div class="cd-num">'+weeks+'</div><div class="cd-lbl">Weeks</div></div>';
-  cdHtml += '<div class="cd-box"><div class="cd-num">'+days+'</div><div class="cd-lbl">Days</div></div>';
+  if (diffMs <= 0) {
+    // Date has passed — show a celebratory state instead of a stuck "0 / 0 / 0".
+    cdHtml = '<div class="cd-box" style="min-width:auto;padding:0.6rem 1.1rem;">'
+      + '<div class="cd-num" style="font-size:1.4rem;">💍 Married!</div>'
+      + '<div class="cd-lbl">Since Aug 1, 2026</div>'
+      + '</div>';
+  } else {
+    const days = Math.floor(diffMs / 86400000);
+    const weeks = Math.floor(days / 7);
+    const months = Math.max(0, (WEDDING_DATE.getFullYear()-today.getFullYear())*12 + (WEDDING_DATE.getMonth()-today.getMonth()) - (today.getDate() > WEDDING_DATE.getDate() ? 1 : 0));
+    cdHtml += '<div class="cd-box"><div class="cd-num">'+months+'</div><div class="cd-lbl">Months</div></div>';
+    cdHtml += '<div class="cd-box"><div class="cd-num">'+weeks+'</div><div class="cd-lbl">Weeks</div></div>';
+    cdHtml += '<div class="cd-box"><div class="cd-num">'+days+'</div><div class="cd-lbl">Days</div></div>';
+  }
   document.getElementById('wed-countdown').innerHTML = cdHtml;
 
   // Filter pills (owners) + Budget toggle pill
@@ -2727,7 +2779,7 @@ async function addWedItem() {
   const txt = inp.value.trim();
   if (!txt) { inp.focus(); return; }
   const items = getG('wedding', null, cat, null);
-  items.push({ id: 'w'+Date.now(), text: txt, pri, done: false, owner });
+  items.push({ id: newId('w'), text: txt, pri, done: false, owner });
   setG('wedding', null, cat, null, items);
   inp.value = '';
   openCats.add(cat);
@@ -2739,14 +2791,12 @@ async function editWedItem(catId, itemId) {
   const items = getG('wedding', null, catId, null);
   const it = items.find(x => x.id === itemId);
   if (!it) return;
-  const next = prompt('Edit wedding task:', it.text || '');
-  if (next == null) return;
-  const t = next.trim();
-  if (!t) return;
-  it.text = t;
-  setG('wedding', null, catId, null, items);
-  render();
-  await persistKey(skey('wedding', null, catId, null));
+  openEditText('Edit wedding task', it.text || '', async (t) => {
+    it.text = t;
+    setG('wedding', null, catId, null, items);
+    render();
+    await persistKey(skey('wedding', null, catId, null));
+  });
 }
 
 async function delWedItem(catId, itemId) {
@@ -2845,7 +2895,7 @@ async function addHomeItem() {
   const txt = inp.value.trim();
   if (!txt) { inp.focus(); return; }
   const items = getG('home', null, cat, null);
-  items.push({ id: 'h'+Date.now(), text: txt, pri, done: false });
+  items.push({ id: newId('h'), text: txt, pri, done: false });
   setG('home', null, cat, null, items);
   inp.value = '';
   openHomeCats.add(cat);
@@ -2857,14 +2907,12 @@ async function editHomeItem(catId, itemId) {
   const items = getG('home', null, catId, null);
   const it = items.find(x => x.id === itemId);
   if (!it) return;
-  const next = prompt('Edit item:', it.text || '');
-  if (next == null) return;
-  const t = next.trim();
-  if (!t) return;
-  it.text = t;
-  setG('home', null, catId, null, items);
-  render();
-  await persistKey(skey('home', null, catId, null));
+  openEditText('Edit home item', it.text || '', async (t) => {
+    it.text = t;
+    setG('home', null, catId, null, items);
+    render();
+    await persistKey(skey('home', null, catId, null));
+  });
 }
 
 async function delHomeItem(catId, itemId) {
@@ -2883,14 +2931,12 @@ async function editGoal(period, yr, sub, who, id) {
   const goals = getG(period, yr, sub, who);
   const g = goals.find(x => x.id === id);
   if (!g) return;
-  const next = prompt('Edit goal:', g.text || '');
-  if (next == null) return;
-  const t = next.trim();
-  if (!t) return;
-  g.text = t;
-  setG(period, yr, sub, who, goals);
-  render();
-  await persistKey(skey(period, yr, sub, who));
+  openEditText('Edit goal', g.text || '', async (t) => {
+    g.text = t;
+    setG(period, yr, sub, who, goals);
+    render();
+    await persistKey(skey(period, yr, sub, who));
+  });
 }
 
 // ─── SET STATUS ──────────────────────────────────────────
@@ -2921,7 +2967,7 @@ async function addGoal(period, who) {
   const yr  = selYear;
 
   const goals = getG(period, yr, sub, who);
-  goals.push({ id: who[0]+period[0]+Date.now(), text: txt, pts, maxPts: pts, status: null, done: false });
+  goals.push({ id: newId(who[0]+period[0]), text: txt, pts, maxPts: pts, status: null, done: false });
   setG(period, yr, sub, who, goals);
   inp.value = '';
   render();
@@ -2938,7 +2984,7 @@ async function moveWeeklyGoalToNext(fromYr, fromWk, who, goalId) {
   if (toWk > weeksInYear(toYr)) { toYr += 1; toWk = 1; }
   // Build the moved goal: fresh status (undone), carried flag, new id
   const moved = {
-    id: who[0]+'w'+Date.now(),
+    id: newId(who[0]+'w'),
     text: g.text,
     pts: g.pts,
     maxPts: g.maxPts || g.pts,
@@ -2977,7 +3023,7 @@ async function persistTplMarker(yr, wk, who) {
 
 async function addTpl(who, text, pts, autoAdd) {
   const list = getTpls(who);
-  list.push({ id: 'tpl-'+who[0]+'-'+Date.now(), text: text.trim(), pts, maxPts: pts, autoAdd: !!autoAdd });
+  list.push({ id: newId('tpl-'+who[0]), text: text.trim(), pts, maxPts: pts, autoAdd: !!autoAdd });
   setTpls(who, list);
   render();
   await persistTpls(who);
@@ -3014,12 +3060,11 @@ async function addFromTemplates(who, tplIds) {
   if (!tplIds || !tplIds.length) return;
   const tpls = getTpls(who);
   const goals = getG('weekly', selYear, selWeek, who);
-  const stamp = Date.now();
-  tplIds.forEach((id, i) => {
+  tplIds.forEach(id => {
     const t = tpls.find(x => x.id === id);
     if (!t) return;
     goals.push({
-      id: who[0]+'w'+stamp+'-'+i,
+      id: newId(who[0]+'w'),
       text: t.text,
       pts: t.pts,
       maxPts: t.maxPts || t.pts,
@@ -3039,10 +3084,9 @@ async function maybeMaterializeTemplates(yr, wk, who) {
   if (existing.length) return;
   const autos = getTpls(who).filter(t => t.autoAdd);
   if (!autos.length) return;
-  const stamp = Date.now();
-  autos.forEach((t, i) => {
+  autos.forEach(t => {
     existing.push({
-      id: who[0]+'w'+stamp+'-'+i,
+      id: newId(who[0]+'w'),
       text: t.text,
       pts: t.pts,
       maxPts: t.maxPts || t.pts,
@@ -3064,16 +3108,31 @@ function renderTplPicker() {
   document.getElementById('tpl-picker-title').textContent = 'Pick from ' + TPL_WHO_LABEL[who] + ' Templates';
   const list = getTpls(who);
   const body = document.getElementById('tpl-picker-list');
+  const addBtn = document.getElementById('tpl-picker-add-btn');
+
   if (!list.length) {
-    body.innerHTML = '<div class="empty" style="padding:0.8rem 0;">No templates yet. Tap Manage to add some.</div>';
+    body.innerHTML = '<div class="empty" style="padding:0.8rem 0;">No templates yet. Tap below to add your first one.</div>';
+    // Swap the "Add Selected" button to a shortcut that opens Manage.
+    addBtn.textContent = '+ Add your first template';
+    addBtn.dataset.mode = 'open-manage';
   } else {
-    body.innerHTML = list.map(t =>
-      '<label class="tpl-row"><input type="checkbox" data-tpl-pick="'+t.id+'"/>'
-      + '<span class="tpl-row-text">'+escHtml(t.text)+'</span>'
-      + '<span class="tpl-row-pts">'+t.pts+' pts</span>'
-      + (t.autoAdd?'<span class="tpl-row-star" title="Auto-adds every week">⭐</span>':'')
-      + '</label>'
-    ).join('');
+    // Build a quick lookup of this week's goal text so we can grey out already-added templates.
+    const weekGoals = getG('weekly', selYear, selWeek, who);
+    const existingTexts = new Set(weekGoals.map(g => (g.text || '').trim().toLowerCase()));
+    body.innerHTML = list.map(t => {
+      const already = existingTexts.has((t.text || '').trim().toLowerCase());
+      const disabledAttr = already ? ' disabled' : '';
+      const addedTag = already ? '<span class="tpl-row-added">already added</span>' : '';
+      const extraCls = already ? ' tpl-row-dim' : '';
+      return '<label class="tpl-row'+extraCls+'"><input type="checkbox" data-tpl-pick="'+t.id+'"'+disabledAttr+'/>'
+        + '<span class="tpl-row-text">'+escHtml(t.text)+'</span>'
+        + '<span class="tpl-row-pts">'+t.pts+' pts</span>'
+        + (t.autoAdd?'<span class="tpl-row-star" title="Auto-adds every week">⭐</span>':'')
+        + addedTag
+        + '</label>';
+    }).join('');
+    addBtn.textContent = '+ Add Selected';
+    addBtn.dataset.mode = 'add';
   }
 }
 
@@ -3796,6 +3855,8 @@ document.addEventListener('click', function(e) {
         } else {
           setFbStatus('err','Read back wrong value. Security rules may be blocking. Check Firebase rules.');
         }
+        // Clean up: don't leave the ping lying around in the database.
+        try { await testRef.remove(); } catch(_) {}
       } catch (err) {
         const msg = (err && err.message) || String(err);
         if (/PERMISSION_DENIED/i.test(msg)) {
@@ -3843,9 +3904,23 @@ document.addEventListener('click', function(e) {
     _tplManagerWho = null;
     return;
   }
-  // Weekly Templates: add selected from picker
+  // Weekly Templates: add selected from picker (or jump to Manage on empty state)
   if (e.target.id === 'tpl-picker-add-btn') {
     if (!_tplPickerWho) return;
+    // Empty-state shortcut: this button becomes "+ Add your first template" and opens Manage.
+    if (e.target.dataset.mode === 'open-manage') {
+      const who = _tplPickerWho;
+      document.getElementById('tpl-picker-modal').classList.remove('open');
+      _tplPickerWho = null;
+      _tplManagerWho = who;
+      document.getElementById('tpl-add-inp').value = '';
+      document.getElementById('tpl-add-auto').checked = false;
+      document.getElementById('tpl-add-pts').value = '5';
+      renderTplManager();
+      document.getElementById('tpl-manage-modal').classList.add('open');
+      setTimeout(() => document.getElementById('tpl-add-inp').focus(), 60);
+      return;
+    }
     const boxes = document.querySelectorAll('#tpl-picker-list input[type=checkbox]:checked');
     const ids = Array.from(boxes).map(b => b.dataset.tplPick);
     if (!ids.length) { document.getElementById('tpl-picker-modal').classList.remove('open'); _tplPickerWho = null; return; }
@@ -3882,11 +3957,9 @@ document.addEventListener('click', function(e) {
     const list = getTpls(_tplManagerWho);
     const t = list.find(x => x.id === tplEdit.dataset.tplEdit);
     if (!t) return;
-    const next = prompt('Edit template:', t.text || '');
-    if (next == null) return;
-    const trimmed = next.trim();
-    if (!trimmed) return;
-    editTpl(_tplManagerWho, t.id, { text: trimmed });
+    const who = _tplManagerWho;
+    const id = t.id;
+    openEditText('Edit template', t.text || '', (val) => editTpl(who, id, { text: val }));
     return;
   }
   // Weekly Templates: delete template
@@ -3897,6 +3970,12 @@ document.addEventListener('click', function(e) {
     if (!confirm('Delete this template? Weekly goals already added from it will stay.')) return;
     delTpl(_tplManagerWho, tplDel.dataset.tplDel);
     return;
+  }
+
+  // Edit-text modal: save / cancel / backdrop
+  if (e.target.id === 'edit-text-save') { submitEditText(); return; }
+  if (e.target.id === 'edit-text-cancel' || e.target.id === 'edit-text-modal') {
+    closeEditText(); return;
   }
 
   // Modals
@@ -3956,6 +4035,10 @@ document.addEventListener('keydown', function(e) {
   if (e.target.id === 'home-add-inp') {
     e.preventDefault();
     document.getElementById('home-add-btn').click();
+  }
+  if (e.target.id === 'edit-text-input') {
+    e.preventDefault();
+    submitEditText();
   }
 });
 
