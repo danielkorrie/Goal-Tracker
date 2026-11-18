@@ -4710,17 +4710,73 @@ function stopVoice() {
 // Parse a transcript into {bucket, owner, text, pts}[].
 // Buckets: today | weekly | monthly | yearly | home
 // Owners:  daniel | chardae | together
-const VP_VERBS = "clean|clear|send|make|do|go|get|buy|call|write|email|text|finish|start|prep|prepare|cook|wash|pick|drop|visit|meet|pay|book|schedule|plan|review|check|update|add|read|run|work|fix|help|build|create|order|mop|sweep|vacuum|put|take|give|bring|drive|dust|organize|tidy|empty|fill|fold|iron|post|publish|respond|answer|edit|look|watch|study|learn|practice|design|save|host|host|try|move|wrap|drop|attend|record|walk";
+const VP_VERBS = "clean|clear|send|make|do|go|get|buy|call|write|email|text|finish|start|prep|prepare|cook|wash|pick|drop|visit|meet|pay|book|schedule|plan|review|check|update|add|read|run|work|fix|help|build|create|order|mop|sweep|vacuum|put|take|give|bring|drive|dust|organize|tidy|empty|fill|fold|iron|post|publish|respond|answer|edit|look|watch|study|learn|practice|design|save|host|try|move|wrap|attend|record|walk";
 const VP_TIMEBUCKET = "today|tonight|tomorrow|later|weekly|this\\s+week|monthly|this\\s+month|yearly|this\\s+year|home";
+// Adverbs that strongly suggest a new clause when they appear mid-utterance.
+const VP_ADVERBS = "potentially|maybe|hopefully|possibly|probably|afterwards|afterward|finally|lastly";
+// Maps gerunds iOS emits at pauses ("To Doing our course") back to base verbs.
+const VP_GERUND_MAP = {
+  doing:'do', going:'go', making:'make', getting:'get', sending:'send',
+  writing:'write', cleaning:'clean', calling:'call', buying:'buy',
+  finishing:'finish', starting:'start', prepping:'prep', preparing:'prepare',
+  cooking:'cook', washing:'wash', picking:'pick', dropping:'drop',
+  visiting:'visit', meeting:'meet', paying:'pay', booking:'book',
+  scheduling:'schedule', planning:'plan', reviewing:'review', checking:'check',
+  updating:'update', adding:'add', reading:'read', running:'run',
+  working:'work', fixing:'fix', helping:'help', building:'build',
+  creating:'create', ordering:'order', putting:'put', taking:'take',
+  giving:'give', bringing:'bring', driving:'drive', organizing:'organize',
+  tidying:'tidy', emptying:'empty', filling:'fill', folding:'fold',
+  posting:'post', publishing:'publish', responding:'respond', answering:'answer',
+  editing:'edit', studying:'study', learning:'learn', practicing:'practice',
+  designing:'design', saving:'save', hosting:'host', trying:'try',
+  moving:'move', wrapping:'wrap', attending:'attend', recording:'record',
+  walking:'walk', emailing:'email', texting:'text',
+  mopping:'mop', sweeping:'sweep', vacuuming:'vacuum', dusting:'dust',
+  ironing:'iron', watching:'watch', looking:'look'
+};
 const VP_SPLIT = new RegExp(
   '[.!?;,]' +
   '|\\bthen\\b' +
   '|\\balso\\b' +
   '|\\bnext\\b' +
   '|\\bplus\\b' +
-  "|\\band\\s+(?=(?:i|we|i'?ll|we'?ll|i'?m|for\\s+(?:us|me|her|him|the|our|my|daniel|chardae)\\b|" + VP_TIMEBUCKET + '|' + VP_VERBS + ')\\b)',
+  "|\\band\\s+(?=(?:i|we|i'?ll|we'?ll|i'?m|for\\s+(?:us|me|her|him|the|our|my|daniel|chardae)\\b|" + VP_TIMEBUCKET + '|' + VP_VERBS + ')\\b)' +
+  // Mid-utterance adverb starts ("...finish the deck Potentially record...").
+  // Only mid-sentence so a chunk that begins with "Maybe clean the garage"
+  // isn't broken in half.
+  '|(?<=\\S\\s)(?=(?:' + VP_ADVERBS + ')\\b)',
   'gi'
 );
+
+// iOS voice-to-text capitalizes a word at detected pauses. Use that as a
+// split signal: insert ". " before a mid-sentence capitalized word whose
+// lowercased form looks like a goal start — a verb (base or gerund) or a
+// sentence-adverb. Does NOT split before capitalized nouns ("Email",
+// "Anthropic", "Keegan") since iOS also capitalizes those mid-sentence.
+function insertPauseSplits(raw) {
+  const STARTERS = new Set(VP_VERBS.split('|'));
+  const ADVERBS  = new Set(VP_ADVERBS.split('|'));
+  const GERUNDS  = new Set(Object.keys(VP_GERUND_MAP));
+  const tokens = raw.split(/(\s+)/);
+  let out = '';
+  let wordsSeen = 0;
+  for (const tok of tokens) {
+    if (!tok.trim()) { out += tok; continue; }
+    const first = tok[0];
+    if (wordsSeen > 0 && first >= 'A' && first <= 'Z') {
+      const bare = tok.toLowerCase().replace(/[^a-z']+$/, '').replace(/^[^a-z']+/, '');
+      if (STARTERS.has(bare) || ADVERBS.has(bare) || GERUNDS.has(bare)) {
+        out += '. ' + tok;
+        wordsSeen++;
+        continue;
+      }
+    }
+    out += tok;
+    wordsSeen++;
+  }
+  return out;
+}
 
 function parseVoiceTranscript(raw) {
   if (!raw) return [];
@@ -4730,9 +4786,10 @@ function parseVoiceTranscript(raw) {
   // Normalize + split into small clauses on sentence/pause boundaries,
   // plus "and" when followed by a verb/pronoun/time-bucket (so natural
   // speech like "clean the bathroom and clear the yard and send the themes"
-  // becomes 3 goals, while "pots and pans" stays one).
-  const chunks = raw
-    .replace(/\s+/g, ' ')
+  // becomes 3 goals, while "pots and pans" stays one). First layer: use
+  // iOS capitalization as a pause signal for punctuation-free dictation.
+  const prepared = insertPauseSplits(raw.replace(/\s+/g, ' '));
+  const chunks = prepared
     .split(VP_SPLIT)
     .map(s => s.trim())
     .filter(Boolean);
@@ -4771,28 +4828,51 @@ function parseVoiceTranscript(raw) {
     // leave bare words like "together", "our", "home", "chardae", "daniel" alone
     // so phrases like "put together", "our house" and names in the goal text survive.
     let clean = chunk
-      // Filler phrases people say before a goal — strip FIRST so compound forms like
-      // "today's goal is to" match in full before bare "today" gets stripped separately.
-      .replace(/\b(today'?s goal is to|today'?s goal is|today'?s goal|my goal for today is to|my goal for today is|the goal is to|the goal is|so i need to|so i want to|so i have to|so i should|so i wanna|i'?m going to|i am going to|i'?m gonna|i gonna|i'?d like to|i would like to|i wanna)\b/gi, '')
+      // Filler phrases people say before a goal — strip FIRST so compound forms
+      // match in full before shorter variants run. Order: longest → shortest.
+      .replace(/\bso\s+basically\s+my\s+goal\s+(?:for\s+(?:today|tomorrow|this\s+(?:week|month|year)|the\s+(?:week|month|year)))?\s+is\s+to\b/gi, '')
+      .replace(/\bmy\s+goal\s+for\s+(?:today|tomorrow|this\s+(?:week|month|year)|the\s+(?:week|month|year))\s+is\s+to\b/gi, '')
+      .replace(/\bmy\s+goal\s+for\s+(?:today|tomorrow|this\s+(?:week|month|year)|the\s+(?:week|month|year))\s+is\b/gi, '')
+      .replace(/\bmy\s+goal\s+is\s+to\b/gi, '')
+      .replace(/\bmy\s+goal\s+is\b/gi, '')
+      .replace(/\b(today'?s goal is to|today'?s goal is|today'?s goal|the goal is to|the goal is)\b/gi, '')
+      .replace(/\b(so i need to|so i want to|so i have to|so i should|so i wanna|i'?m going to|i am going to|i'?m gonna|i gonna|i'?d like to|i would like to|i wanna)\b/gi, '')
+      .replace(/^\s*(?:so\s+)?basically\b[,\s]*/i, '')
+      .replace(/^\s*borrow\b[,\s]*/i, '') // iOS mis-hears "tomorrow" → "borrow" at start
       .replace(/\b(this year|by the end of the year|end of year|yearly|this month|monthly|the month|this week|weekly|the week|for the week|today|tonight|this morning|this afternoon|this evening|for the house)\b/gi, '')
       // Owner phrases
-      .replace(/\b(for us|both of us|we need to|we should|we have to|we want to|my goal is to|my goal is|for me|i need to|i want to|i have to|i should|for myself|for her|she needs to|she wants to|she has to|her goal is|chardae needs to|chardae wants to|chardae and i)\b/gi, '')
+      .replace(/\b(for us|both of us|we need to|we should|we have to|we want to|for me|i need to|i want to|i have to|i should|for myself|for her|she needs to|she wants to|she has to|her goal is|chardae needs to|chardae wants to|chardae and i)\b/gi, '')
       .replace(/^['’]s\s+(?:goal\s+)?/i, '')  // "'s goal" or "'s" leftover from possessive strip
       .replace(/^(a|to|the|and|then|also|next|is|home|but|or|so)\s+/i, '')
-      .replace(/\s+(and|then|also|or|but|so|plus)$/i, '')
+      .replace(/\s+(and|then|also|or|but|so|plus|to)$/i, '')
       .replace(/\s+/g, ' ')
       .trim();
 
-    // Capitalize first letter for readability
-    // Verb inheritance: if this chunk doesn't start with an action verb
-    // but the previous one did, prepend that verb so "AEO projects" becomes
-    // "finish AEO projects" after "finish AI projects".
+    // Gerund → base verb if the chunk starts with one ("Doing our course" → "Do our course")
     if (clean.length > 1) {
-      const firstWord = clean.split(/\s+/)[0] || '';
+      const m = clean.match(/^([a-z]+)(\b.*)/i);
+      if (m) {
+        const low1 = m[1].toLowerCase();
+        if (VP_GERUND_MAP[low1]) clean = VP_GERUND_MAP[low1] + m[2];
+      }
+    }
+
+    // Verb inheritance: "finish AI projects, AEO projects" → "Finish AEO projects".
+    // Only inherit if the chunk has NO verb in its first ~3 words — otherwise
+    // "Potentially record the demo" (adverb + verb) would wrongly become
+    // "Finish Potentially record the demo".
+    if (clean.length > 1) {
+      const words = clean.split(/\s+/);
+      const firstWord = (words[0] || '').toLowerCase();
+      const head = words.slice(0, 3).map(w => w.toLowerCase());
+      const hasVerb = head.some(w => VERB_RE.test(w));
       if (VERB_RE.test(firstWord)) {
-        lastVerb = firstWord.toLowerCase();
-      } else if (lastVerb) {
+        lastVerb = firstWord;
+      } else if (lastVerb && !hasVerb) {
         clean = lastVerb + ' ' + clean;
+      } else if (hasVerb) {
+        const v = head.find(w => VERB_RE.test(w));
+        if (v) lastVerb = v;
       }
     }
 
