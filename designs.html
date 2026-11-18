@@ -3,472 +3,420 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Goal Tracker · Design Directions</title>
+<title>Goal Tracker · Paper v2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500&family=DM+Serif+Display:ital@0;1&family=Satoshi:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 
-/* OUTER SHELL (chooser page) */
+/* ─── OUTER CHOOSER PAGE ──────────────────────────────── */
 .shell {
   min-height: 100vh;
-  background: #0b0b10;
+  background: #0f0f14;
   color: #e8e8f0;
   font-family: 'Inter', system-ui, sans-serif;
-  padding: 2rem 1rem 4rem;
+  padding: 2rem 1rem 3rem;
 }
 .shell-head {
-  max-width: 480px;
+  max-width: 520px;
   margin: 0 auto 2rem;
+}
+.shell-eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #FFB84D;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
   text-align: center;
 }
 .shell-head h1 {
   font-family: 'Fraunces', serif;
-  font-weight: 500;
+  font-weight: 400;
   font-style: italic;
-  font-size: 2rem;
-  margin: 0 0 0.6rem;
-  background: linear-gradient(135deg, #FFB199, #FF6BAE, #8B5CF6);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 2.2rem;
+  line-height: 1.05;
+  margin: 0 0 0.9rem;
+  text-align: center;
+  color: #fff;
 }
 .shell-head p {
   color: #a0a0b8;
-  font-size: 0.95rem;
-  line-height: 1.55;
+  font-size: 0.9rem;
+  line-height: 1.6;
   margin: 0;
+  text-align: center;
 }
 .shell-head b { color: #FFD700; font-weight: 700; }
 
-.direction {
-  max-width: 480px;
-  margin: 0 auto 2.6rem;
+/* Reference strip */
+.refs {
+  max-width: 520px;
+  margin: 0 auto 2rem;
+  background: #16161f;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 1.1rem 1.1rem 1rem;
 }
-.direction-meta {
+.refs-head {
   display: flex;
   align-items: baseline;
   gap: 0.6rem;
-  margin: 0 0.5rem 0.8rem;
-  color: #c0c0d0;
+  margin-bottom: 0.7rem;
 }
-.direction-meta .num {
+.refs-head .ico { font-size: 0.9rem; }
+.refs-head .lbl {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-style: italic;
+  font-size: 1.05rem;
+  color: #fff;
+}
+.ref-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+}
+.ref-item {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+  background: #0f0f14;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+.ref-name {
+  font-weight: 700;
+  color: #fff;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+  width: 92px;
+}
+.ref-why {
+  color: #a0a0b8;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  flex: 1;
+}
+.ref-why .accent { color: #E3B07F; font-weight: 600; }
+
+/* Section header for mockup */
+.section-title {
+  max-width: 520px;
+  margin: 2rem auto 0.8rem;
+  padding: 0 0.3rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.section-title .num {
   font-family: 'Fraunces', serif;
   font-style: italic;
+  font-weight: 400;
   font-size: 1.1rem;
   color: #FFD700;
 }
-.direction-meta .name {
+.section-title .name {
   font-family: 'Fraunces', serif;
-  font-weight: 700;
-  font-size: 1.5rem;
+  font-weight: 500;
+  font-size: 1.4rem;
   color: #fff;
 }
-.direction-meta .tag {
-  font-size: 0.72rem;
+.section-title .tag {
+  margin-left: auto;
+  font-size: 0.65rem;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: #8888aa;
 }
-.direction-desc {
-  color: #a0a0b8;
-  font-size: 0.85rem;
-  line-height: 1.55;
-  margin: 0 0.5rem 1rem;
+
+.direction {
+  max-width: 520px;
+  margin: 0 auto 2rem;
 }
 
-/* PHONE FRAME */
+/* Annotation callouts around the phone */
+.phone-wrap {
+  position: relative;
+}
 .phone {
   background: #1a1a22;
-  border-radius: 32px;
+  border-radius: 36px;
   padding: 10px;
-  box-shadow:
-    0 24px 48px rgba(0,0,0,0.5),
-    0 0 0 1px rgba(255,255,255,0.06);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06);
   overflow: hidden;
   position: relative;
 }
 .phone-screen {
-  border-radius: 24px;
+  border-radius: 28px;
   overflow: hidden;
   position: relative;
-  min-height: 560px;
+  min-height: 640px;
 }
 .phone-notch {
   position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90px;
-  height: 22px;
-  background: #0b0b10;
-  border-radius: 11px;
+  top: 10px; left: 50%; transform: translateX(-50%);
+  width: 94px; height: 24px;
+  background: #0f0f14;
+  border-radius: 12px;
   z-index: 10;
 }
 
-/* ─────────────────────────────────────────────────────────── */
-/*  DIRECTION 1 — SUNRISE                                       */
-/* ─────────────────────────────────────────────────────────── */
-.d1 {
-  --d1-bg1: #FFE5F1;
-  --d1-bg2: #FFF5EC;
-  --d1-bg3: #E5F0FF;
-  --d1-ink: #2E2246;
-  --d1-ink-soft: #7A6A94;
-  --d1-card: #ffffff;
-  --d1-coral: #FF7FB0;
-  --d1-purple: #8B5CF6;
-  --d1-gold: #FFB84D;
-  --d1-mint: #6EE7B7;
-  background: linear-gradient(180deg, var(--d1-bg1) 0%, var(--d1-bg2) 50%, var(--d1-bg3) 100%);
-  color: var(--d1-ink);
-  font-family: 'Inter', sans-serif;
-  padding: 36px 20px 20px;
+.annotations {
+  max-width: 520px;
+  margin: 1.1rem auto 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
 }
-.d1 .d1-head { margin-bottom: 18px; }
-.d1 .d1-eyebrow {
-  font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--d1-ink-soft); font-weight: 600;
+.ann {
+  display: flex;
+  gap: 0.6rem;
+  background: #16161f;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
 }
-.d1 .d1-title {
+.ann .pin {
   font-family: 'Fraunces', serif;
-  font-weight: 500;
   font-style: italic;
-  font-size: 1.95rem;
-  line-height: 1.1;
-  margin: 0.15rem 0 0.25rem;
-  color: var(--d1-ink);
-}
-.d1 .d1-sub { font-size: 0.82rem; color: var(--d1-ink-soft); }
-
-.d1 .d1-tabs {
-  display: flex; gap: 0.35rem; margin: 1rem 0 0.9rem; flex-wrap: wrap;
-}
-.d1 .d1-tab {
-  padding: 0.4rem 0.85rem; border-radius: 50px;
-  background: #ffffff80; color: var(--d1-ink-soft);
-  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.3px;
-  border: 1px solid transparent;
-  backdrop-filter: blur(10px);
-}
-.d1 .d1-tab.active {
-  background: var(--d1-ink); color: #fff;
-}
-.d1 .d1-score {
-  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-.d1 .d1-score-pill {
-  background: var(--d1-card); border-radius: 18px;
-  padding: 0.6rem 0.7rem; text-align: center;
-  box-shadow: 0 6px 20px rgba(230,100,160,0.08);
-}
-.d1 .d1-score-pill .n {
-  font-family: 'Fraunces', serif; font-weight: 700;
-  font-size: 1.4rem; line-height: 1;
-}
-.d1 .d1-score-pill .l {
-  font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--d1-ink-soft); margin-top: 0.2rem;
-}
-.d1 .d1-score-pill.a .n { color: var(--d1-coral); }
-.d1 .d1-score-pill.b .n { color: var(--d1-purple); }
-.d1 .d1-score-pill.c .n { color: var(--d1-gold); }
-
-.d1 .d1-goal {
-  background: var(--d1-card);
-  border-radius: 20px;
-  padding: 0.85rem 0.95rem;
-  margin-bottom: 0.55rem;
-  display: flex; align-items: center; gap: 0.7rem;
-  box-shadow: 0 6px 20px rgba(230,100,160,0.08);
-}
-.d1 .d1-check {
-  width: 26px; height: 26px; border-radius: 50%;
-  border: 2px solid var(--d1-coral);
+  font-weight: 400;
+  color: #FFB84D;
+  font-size: 0.9rem;
   flex-shrink: 0;
+  width: 22px;
+  text-align: center;
 }
-.d1 .d1-check.done {
-  background: linear-gradient(135deg, var(--d1-coral), var(--d1-purple));
-  border-color: transparent;
-  position: relative;
+.ann .copy {
+  color: #c0c0d0;
+  font-size: 0.78rem;
+  line-height: 1.5;
 }
-.d1 .d1-check.done::after {
-  content: '✓'; position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 800; font-size: 0.85rem;
-}
-.d1 .d1-txt { flex: 1; font-size: 0.92rem; font-weight: 500; line-height: 1.3; }
-.d1 .d1-txt.done { color: var(--d1-ink-soft); text-decoration: line-through; text-decoration-thickness: 1.5px; }
-.d1 .d1-emoji { font-size: 1.2rem; }
+.ann .copy b { color: #fff; font-weight: 600; }
 
-.d1 .d1-mic {
-  position: absolute; right: 18px; bottom: 18px;
-  width: 58px; height: 58px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--d1-coral), var(--d1-purple));
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 1.5rem;
-  box-shadow: 0 10px 24px rgba(139,92,246,0.4);
-}
-
-
-/* ─────────────────────────────────────────────────────────── */
-/*  DIRECTION 2 — NEON NIGHT                                    */
-/* ─────────────────────────────────────────────────────────── */
-.d2 {
-  --d2-bg: #0A0A1E;
-  --d2-card: rgba(255,255,255,0.04);
-  --d2-border: rgba(255,255,255,0.08);
-  --d2-ink: #E8E8F0;
-  --d2-ink-soft: #7A7A9A;
-  --d2-cyan: #00F5FF;
-  --d2-magenta: #FF2E8B;
-  --d2-lime: #C6FF4A;
-  background: var(--d2-bg);
-  color: var(--d2-ink);
+/* ─── PAPER v2 ────────────────────────────────────────── */
+.p2 {
+  --p-bg: #F5EFE2;           /* Slightly warmer cream */
+  --p-card: #FFFFFF;
+  --p-ink: #27201A;
+  --p-ink-soft: #7A6F5C;
+  --p-ink-faint: #B7A991;
+  --p-rule: #E8DFCC;
+  --p-terra: #C65D3C;         /* terracotta from v1 */
+  --p-coral: #E27353;         /* warmer coral from Sunrise */
+  --p-sage: #6B7E5E;
+  --p-honey: #B88930;
+  --p-focus: #F3E4C8;         /* soft honey wash for active row */
+  background: var(--p-bg);
+  color: var(--p-ink);
   font-family: 'Inter', sans-serif;
-  padding: 36px 20px 20px;
-  position: relative;
+  padding: 40px 22px 24px;
+  animation: p2In 0.6s ease;
 }
-.d2::before {
-  content: ''; position: absolute; top: -40%; left: -20%; right: -20%; height: 60%;
-  background:
-    radial-gradient(ellipse at 20% 50%, rgba(0,245,255,0.18), transparent 60%),
-    radial-gradient(ellipse at 80% 20%, rgba(255,46,139,0.14), transparent 55%);
-  pointer-events: none;
-  filter: blur(40px);
+@keyframes p2In { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.p2-head { margin-bottom: 20px; }
+.p2-day {
+  font-size: 0.68rem; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--p-ink-soft); font-weight: 600;
 }
-.d2-head {
-  position: relative; margin-bottom: 18px;
-}
-.d2-eyebrow {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
-  color: var(--d2-cyan);
-}
-.d2-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  font-size: 1.9rem;
+.p2-greet {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 2.15rem;
   line-height: 1.05;
   letter-spacing: -0.5px;
-  margin: 0.3rem 0 0.3rem;
+  margin: 0.35rem 0 0.4rem;
+  color: var(--p-ink);
 }
-.d2-title .accent { color: var(--d2-cyan); }
-.d2-sub { font-size: 0.8rem; color: var(--d2-ink-soft); }
-
-.d2-tabs {
-  display: flex; gap: 0.3rem; margin: 1rem 0 0.9rem; position: relative;
-  padding: 0.2rem; background: rgba(255,255,255,0.03); border-radius: 12px;
-  border: 1px solid var(--d2-border);
-}
-.d2-tab {
-  flex: 1; text-align: center;
-  padding: 0.45rem 0.4rem; border-radius: 8px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--d2-ink-soft); font-weight: 600;
-}
-.d2-tab.active {
-  background: linear-gradient(135deg, var(--d2-cyan), #0097b5);
-  color: #000; font-weight: 700;
-  box-shadow: 0 0 20px rgba(0,245,255,0.35);
-}
-
-.d2-score {
-  display: flex; gap: 0.5rem; margin-bottom: 1rem;
-  background: var(--d2-card); border: 1px solid var(--d2-border);
-  border-radius: 14px; padding: 0.7rem; backdrop-filter: blur(20px);
-  position: relative;
-}
-.d2-score-col { flex: 1; text-align: center; }
-.d2-score-col .n {
-  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
-  font-size: 1.5rem; line-height: 1;
-}
-.d2-score-col.a .n { color: var(--d2-cyan); text-shadow: 0 0 20px rgba(0,245,255,0.5); }
-.d2-score-col.b .n { color: var(--d2-magenta); text-shadow: 0 0 20px rgba(255,46,139,0.5); }
-.d2-score-col.c .n { color: var(--d2-lime); text-shadow: 0 0 20px rgba(198,255,74,0.4); }
-.d2-score-col .l {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.55rem; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--d2-ink-soft); margin-top: 0.3rem;
-}
-
-.d2-goal {
-  background: var(--d2-card); border: 1px solid var(--d2-border);
-  border-radius: 12px; padding: 0.75rem 0.85rem;
-  margin-bottom: 0.45rem;
-  display: flex; align-items: center; gap: 0.7rem;
-  backdrop-filter: blur(20px);
-  transition: all 0.2s;
-  position: relative;
-}
-.d2-goal.active {
-  border-color: var(--d2-cyan);
-  box-shadow: 0 0 0 1px var(--d2-cyan), 0 8px 24px rgba(0,245,255,0.15);
-}
-.d2-check {
-  width: 22px; height: 22px; border-radius: 6px;
-  border: 1.5px solid var(--d2-ink-soft);
-  flex-shrink: 0;
-}
-.d2-check.done {
-  background: var(--d2-cyan); border-color: var(--d2-cyan);
-  position: relative;
-  box-shadow: 0 0 12px rgba(0,245,255,0.6);
-}
-.d2-check.done::after {
-  content: '✓'; position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  color: #000; font-weight: 800; font-size: 0.8rem;
-}
-.d2-txt { flex: 1; font-size: 0.88rem; font-weight: 500; }
-.d2-txt.done { color: var(--d2-ink-soft); text-decoration: line-through; }
-.d2-chip {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.55rem; letter-spacing: 1.5px; text-transform: uppercase;
-  padding: 0.15rem 0.4rem; border-radius: 4px;
-  background: rgba(255,46,139,0.15); color: var(--d2-magenta);
-  border: 1px solid rgba(255,46,139,0.3);
-}
-
-.d2-mic {
-  position: absolute; right: 18px; bottom: 18px;
-  width: 58px; height: 58px; border-radius: 50%;
-  background: var(--d2-cyan);
-  display: flex; align-items: center; justify-content: center;
-  color: #000; font-size: 1.5rem; font-weight: 800;
-  box-shadow:
-    0 0 0 2px rgba(0,245,255,0.3),
-    0 0 30px rgba(0,245,255,0.5),
-    0 8px 20px rgba(0,0,0,0.6);
-}
-
-
-/* ─────────────────────────────────────────────────────────── */
-/*  DIRECTION 3 — PAPER                                         */
-/* ─────────────────────────────────────────────────────────── */
-.d3 {
-  --d3-bg: #F7F3EB;
-  --d3-card: #ffffff;
-  --d3-ink: #2D2518;
-  --d3-ink-soft: #7A6F5C;
-  --d3-rule: #EFE7D8;
-  --d3-terra: #C65D3C;
-  --d3-sage: #6B7E5E;
-  --d3-honey: #C4A057;
-  background: var(--d3-bg);
-  color: var(--d3-ink);
-  font-family: 'Inter', sans-serif;
-  padding: 36px 22px 20px;
-}
-.d3-head { margin-bottom: 18px; }
-.d3-eyebrow {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
-  color: var(--d3-ink-soft); font-weight: 600;
-}
-.d3-title {
-  font-family: 'DM Serif Display', serif;
-  font-weight: 400;
+.p2-greet .accent {
+  color: var(--p-terra);
   font-style: italic;
-  font-size: 2.2rem; line-height: 1.05;
-  margin: 0.3rem 0 0.25rem;
-  color: var(--d3-ink);
 }
-.d3-sub { font-size: 0.82rem; color: var(--d3-ink-soft); font-weight: 500; }
+.p2-sub {
+  font-size: 0.82rem;
+  color: var(--p-ink-soft);
+  font-weight: 500;
+}
+.p2-sub .dot { color: var(--p-ink-faint); margin: 0 0.3rem; }
 
-.d3-tabs {
-  display: flex; gap: 0; border-bottom: 1px solid var(--d3-rule);
-  margin: 1.2rem 0 1rem;
+/* Tabs — underline style, Craft / Linear inspired */
+.p2-tabs {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--p-rule);
+  margin: 1.3rem 0 1.1rem;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
-.d3-tab {
-  padding: 0.5rem 0.8rem 0.6rem; margin-right: 0.3rem;
-  font-size: 0.78rem; font-weight: 600;
-  color: var(--d3-ink-soft);
+.p2-tabs::-webkit-scrollbar { display: none; }
+.p2-tab {
+  padding: 0.55rem 0.9rem 0.65rem;
+  font-size: 0.8rem; font-weight: 600;
+  color: var(--p-ink-soft);
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
+  white-space: nowrap;
 }
-.d3-tab.active {
-  color: var(--d3-terra);
-  border-color: var(--d3-terra);
-}
-
-.d3-score {
-  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0;
-  margin-bottom: 1.1rem;
-  background: var(--d3-card);
-  border: 1px solid var(--d3-rule);
-  border-radius: 12px;
-  padding: 0.3rem 0;
-}
-.d3-score-col {
-  text-align: center; padding: 0.4rem 0.3rem;
-  border-right: 1px solid var(--d3-rule);
-}
-.d3-score-col:last-child { border-right: none; }
-.d3-score-col .n {
-  font-family: 'DM Serif Display', serif;
-  font-weight: 400;
-  font-size: 1.6rem; line-height: 1;
-}
-.d3-score-col.a .n { color: var(--d3-terra); }
-.d3-score-col.b .n { color: var(--d3-sage); }
-.d3-score-col.c .n { color: var(--d3-honey); }
-.d3-score-col .l {
-  font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--d3-ink-soft); margin-top: 0.3rem; font-weight: 600;
+.p2-tab.active {
+  color: var(--p-terra);
+  border-color: var(--p-terra);
 }
 
-.d3-section-head {
-  font-family: 'DM Serif Display', serif;
+/* Scoreboard — thin divider style, Mercury-inspired */
+.p2-score {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  background: var(--p-card);
+  border: 1px solid var(--p-rule);
+  border-radius: 14px;
+  padding: 0.5rem 0;
+  margin-bottom: 1.3rem;
+}
+.p2-score-col {
+  text-align: center;
+  padding: 0.4rem 0.3rem;
+  border-right: 1px solid var(--p-rule);
+}
+.p2-score-col:last-child { border-right: none; }
+.p2-score-col .n {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+.p2-score-col.a .n { color: var(--p-terra); }
+.p2-score-col.b .n { color: var(--p-sage); }
+.p2-score-col.c .n { color: var(--p-honey); }
+.p2-score-col .l {
+  font-size: 0.56rem; letter-spacing: 1.8px; text-transform: uppercase;
+  color: var(--p-ink-soft); margin-top: 0.35rem; font-weight: 600;
+}
+
+/* Section header inside the mockup */
+.p2-sec {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin: 0.2rem 0 0.7rem;
+}
+.p2-sec-head {
+  font-family: 'Fraunces', serif;
   font-weight: 400;
   font-style: italic;
-  font-size: 1.1rem; margin: 0.3rem 0 0.6rem;
-  color: var(--d3-ink);
+  font-size: 1.15rem;
+  color: var(--p-ink);
 }
-.d3-goal {
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--d3-rule);
+.p2-sec-meta {
+  font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--p-ink-soft); font-weight: 600;
+}
+
+/* Goals list — Things 3 / Readwise inspired */
+.p2-goal {
+  padding: 0.85rem 0.1rem;
+  border-bottom: 1px solid var(--p-rule);
   display: flex; align-items: center; gap: 0.8rem;
+  position: relative;
+  transition: background 0.2s;
 }
-.d3-goal:last-child { border-bottom: none; }
-.d3-check {
-  width: 20px; height: 20px; border-radius: 50%;
-  border: 1.5px solid var(--d3-ink-soft);
+.p2-goal:last-child { border-bottom: none; }
+.p2-goal.active {
+  background: var(--p-focus);
+  margin: 0 -0.7rem;
+  padding-left: 0.8rem;
+  padding-right: 0.8rem;
+  border-radius: 10px;
+  border-bottom-color: transparent;
+}
+.p2-goal.active + .p2-goal {
+  border-top: 1px solid var(--p-rule);
+}
+.p2-check {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1.5px solid var(--p-ink-soft);
   flex-shrink: 0;
+  transition: all 0.2s;
 }
-.d3-check.done {
-  background: var(--d3-terra); border-color: var(--d3-terra);
+.p2-check.done {
+  background: var(--p-terra); border-color: var(--p-terra);
   position: relative;
 }
-.d3-check.done::after {
+.p2-check.done::after {
   content: '✓'; position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 800; font-size: 0.7rem;
+  color: #fff; font-weight: 800; font-size: 0.75rem;
 }
-.d3-txt { flex: 1; font-size: 0.92rem; font-weight: 500; color: var(--d3-ink); }
-.d3-txt.done { color: var(--d3-ink-soft); text-decoration: line-through; }
+.p2-txt {
+  flex: 1;
+  font-size: 0.93rem;
+  font-weight: 500;
+  color: var(--p-ink);
+  line-height: 1.3;
+}
+.p2-txt.done {
+  color: var(--p-ink-soft);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+.p2-chip {
+  font-size: 0.6rem; letter-spacing: 1.2px; text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 50px;
+  background: #E8DFCC;
+  color: var(--p-ink-soft);
+  flex-shrink: 0;
+}
+.p2-chip.us {
+  background: rgba(107,126,94,0.15);
+  color: var(--p-sage);
+}
 
-.d3-mic {
-  position: absolute; right: 20px; bottom: 20px;
-  width: 54px; height: 54px; border-radius: 50%;
-  background: var(--d3-ink);
+/* The hero fix: FAB. Warm gradient, oversized (64px), soft warm shadow */
+.p2-mic {
+  position: absolute;
+  right: 20px;
+  bottom: 22px;
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E88A5B 0%, var(--p-terra) 60%, #A84B2C 100%);
   display: flex; align-items: center; justify-content: center;
-  color: var(--d3-bg); font-size: 1.4rem;
-  box-shadow: 0 8px 20px rgba(45,37,24,0.25);
+  color: #FFF;
+  font-size: 1.6rem;
+  box-shadow:
+    0 12px 28px rgba(198,93,60,0.38),
+    0 3px 8px rgba(198,93,60,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+  animation: p2MicIdle 4s ease-in-out infinite;
+}
+@keyframes p2MicIdle {
+  0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 12px 28px rgba(198,93,60,0.38), 0 3px 8px rgba(198,93,60,0.2), inset 0 1px 0 rgba(255,255,255,0.3); }
+  50% { transform: translateY(-2px) scale(1.02); box-shadow: 0 18px 34px rgba(198,93,60,0.48), 0 4px 10px rgba(198,93,60,0.3), inset 0 1px 0 rgba(255,255,255,0.3); }
 }
 
+/* Bottom nav hint — subtle, Streaks-inspired */
+.p2-nav {
+  position: absolute;
+  bottom: 22px;
+  left: 20px;
+  display: flex;
+  gap: 1.1rem;
+  align-items: center;
+}
+.p2-nav-item {
+  font-size: 1.1rem;
+  opacity: 0.4;
+}
+.p2-nav-item.active { opacity: 1; }
 
 /* Footer CTA */
 .cta-card {
-  max-width: 480px;
-  margin: 0 auto;
-  background: #16162a;
+  max-width: 520px;
+  margin: 2rem auto 0;
+  background: #16161f;
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 20px;
   padding: 1.4rem 1.3rem;
@@ -476,31 +424,55 @@ html, body { margin: 0; padding: 0; }
 }
 .cta-card h3 {
   font-family: 'Fraunces', serif;
-  font-weight: 500;
+  font-weight: 400;
   font-style: italic;
   font-size: 1.3rem;
   margin: 0 0 0.4rem;
+  color: #fff;
 }
 .cta-card p {
   color: #a0a0b8;
   font-size: 0.85rem;
-  line-height: 1.55;
-  margin: 0 0 0.9rem;
+  line-height: 1.6;
+  margin: 0 0 1rem;
 }
-.cta-card .vote-row {
+.cta-card .opts {
   display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;
 }
-.vote-pill {
-  background: #0b0b10;
+.opt-pill {
+  background: #0f0f14;
   border: 1px solid rgba(255,255,255,0.12);
   color: #e8e8f0;
-  padding: 0.5rem 1rem;
+  padding: 0.55rem 1.1rem;
   border-radius: 50px;
   font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
+  font-size: 0.82rem;
 }
-.vote-pill b { color: #FFD700; }
+.opt-pill b { color: #E88A5B; margin-right: 0.3rem; }
+
+/* Compare row at top — v1 vs v2 */
+.compare {
+  max-width: 520px;
+  margin: 0 auto 2rem;
+  background: #16161f;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: #c0c0d0;
+}
+.compare .ttl {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-style: italic;
+  color: #fff;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+}
+.compare ul { margin: 0; padding-left: 1.1rem; }
+.compare ul li { margin-bottom: 0.25rem; }
+.compare b { color: #E88A5B; }
 </style>
 
 </head>
@@ -508,170 +480,154 @@ html, body { margin: 0; padding: 0; }
 <div class="shell">
 
 <div class="shell-head">
-  <h1>Pick your direction</h1>
-  <p>Three looks for the Goal Tracker. Each is a real preview of what the <b>Today</b> tab would feel like. Scroll through, then tell me which one you want and I'll apply it to the whole app.</p>
+  <div class="shell-eyebrow">Refined — v2</div>
+  <h1>Paper, with warmth.</h1>
+  <p>I kept what you liked about Paper (cream, serif, simple), borrowed Sunrise's warmth for the moments that need it (the mic), and cut the parts that felt dated. Here's where every choice came from.</p>
 </div>
 
-<!-- DIRECTION 1 — SUNRISE -->
-<section class="direction">
-  <div class="direction-meta">
-    <span class="num">01</span>
-    <span class="name">Sunrise</span>
-    <span class="tag">warm · playful · friendly</span>
+<!-- REFERENCE STRIP -->
+<div class="refs">
+  <div class="refs-head">
+    <span class="ico">📚</span>
+    <span class="lbl">Real apps this is built on</span>
   </div>
-  <p class="direction-desc">Dawn gradient background, pillow-soft white cards, hand-picked pastels. Serif italics in headings give it personality without feeling silly. Inspired by Finch, Headspace onboarding, Opal's warm mode.</p>
+  <div class="ref-row">
+    <a class="ref-item" href="https://culturedcode.com/things/" target="_blank" rel="noopener">
+      <span class="ref-name">Things 3</span>
+      <span class="ref-why"><span class="accent">Minimal check circles, generous rule-line spacing, serif confidence.</span> The way list items feel weightless but readable — that's Things.</span>
+    </a>
+    <a class="ref-item" href="https://readwise.io" target="_blank" rel="noopener">
+      <span class="ref-name">Readwise</span>
+      <span class="ref-why"><span class="accent">Fraunces italic for editorial headers.</span> The "Good afternoon, Daniel" treatment comes from how Readwise names each email digest.</span>
+    </a>
+    <a class="ref-item" href="https://www.craft.do" target="_blank" rel="noopener">
+      <span class="ref-name">Craft Docs</span>
+      <span class="ref-why"><span class="accent">Paper-cream background, warm shadows, low-key dividers.</span> Craft taught everyone that cream feels more inviting than pure white.</span>
+    </a>
+    <a class="ref-item" href="https://posthog.com" target="_blank" rel="noopener">
+      <span class="ref-name">Posthog</span>
+      <span class="ref-why"><span class="accent">Fraunces + Inter pairing with a confident accent color.</span> They proved serif italic can live in a tech product without feeling precious.</span>
+    </a>
+    <a class="ref-item" href="https://mercury.com" target="_blank" rel="noopener">
+      <span class="ref-name">Mercury Bank</span>
+      <span class="ref-why"><span class="accent">Thin-rule scoreboard divider, muted color coding.</span> Where I cribbed the stats row style.</span>
+    </a>
+    <a class="ref-item" href="https://streaksapp.com" target="_blank" rel="noopener">
+      <span class="ref-name">Streaks</span>
+      <span class="ref-why"><span class="accent">Bottom-aligned action button, warm accent circles.</span> The FAB treatment and the warm-color accent on active items come from here.</span>
+    </a>
+  </div>
+</div>
 
-  <div class="phone">
-    <div class="phone-notch"></div>
-    <div class="phone-screen d1">
-      <div class="d1-head">
-        <div class="d1-eyebrow">Wednesday · Nov 18</div>
-        <div class="d1-title">Good afternoon,<br>Daniel</div>
-        <div class="d1-sub">3 of 5 goals · 12 pts today</div>
+<!-- SECTION HEADER -->
+<div class="section-title">
+  <span class="num">v2</span>
+  <span class="name">Paper, refined</span>
+  <span class="tag">with Sunrise warmth</span>
+</div>
+
+<!-- COMPARE ROW -->
+<div class="compare">
+  <div class="ttl">What changed from v1</div>
+  <ul>
+    <li>Mic is now a <b>warm coral-terracotta gradient</b> with a soft breathing animation. No more dark brown dot against cream — it now reads as inviting.</li>
+    <li>Greeting uses <b>Fraunces italic</b> with a terracotta accent on your name. More personality, same restraint.</li>
+    <li>Background is a <b>slightly warmer cream</b> (less grey, more honey).</li>
+    <li>Active goal row has a <b>soft honey wash</b> so your current task is visually obvious without being loud.</li>
+    <li>"Together" goals get a <b>sage chip</b> — so you and Chardae's shared goals stand out from solo ones at a glance.</li>
+  </ul>
+</div>
+
+<div class="direction">
+
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen p2">
+        <div class="p2-head">
+          <div class="p2-day">Wednesday · November 18</div>
+          <div class="p2-greet">Good afternoon,<br><span class="accent">Daniel.</span></div>
+          <div class="p2-sub">3 of 5 goals done<span class="dot">·</span>12 points today</div>
+        </div>
+
+        <div class="p2-tabs">
+          <span class="p2-tab active">Today</span>
+          <span class="p2-tab">Weekly</span>
+          <span class="p2-tab">Monthly</span>
+          <span class="p2-tab">Yearly</span>
+          <span class="p2-tab">Home</span>
+        </div>
+
+        <div class="p2-score">
+          <div class="p2-score-col a"><div class="n">12</div><div class="l">today</div></div>
+          <div class="p2-score-col b"><div class="n">45</div><div class="l">this week</div></div>
+          <div class="p2-score-col c"><div class="n">218</div><div class="l">this year</div></div>
+        </div>
+
+        <div class="p2-sec">
+          <div class="p2-sec-head">Today's list</div>
+          <div class="p2-sec-meta">3 / 5</div>
+        </div>
+
+        <div class="p2-goal">
+          <span class="p2-check done"></span>
+          <span class="p2-txt done">Clean the bathroom</span>
+        </div>
+        <div class="p2-goal">
+          <span class="p2-check done"></span>
+          <span class="p2-txt done">Send dance recital themes</span>
+        </div>
+        <div class="p2-goal active">
+          <span class="p2-check"></span>
+          <span class="p2-txt">Clear out the backyard</span>
+          <span class="p2-chip">Now</span>
+        </div>
+        <div class="p2-goal">
+          <span class="p2-check"></span>
+          <span class="p2-txt">Finish AEO project</span>
+        </div>
+        <div class="p2-goal">
+          <span class="p2-check"></span>
+          <span class="p2-txt">Thanksgiving package</span>
+          <span class="p2-chip us">Us</span>
+        </div>
+
+        <div class="p2-mic">🎤</div>
       </div>
-      <div class="d1-tabs">
-        <span class="d1-tab active">Today</span>
-        <span class="d1-tab">Weekly</span>
-        <span class="d1-tab">Monthly</span>
-        <span class="d1-tab">Yearly</span>
-      </div>
-      <div class="d1-score">
-        <div class="d1-score-pill a"><div class="n">12</div><div class="l">today</div></div>
-        <div class="d1-score-pill b"><div class="n">45</div><div class="l">this week</div></div>
-        <div class="d1-score-pill c"><div class="n">218</div><div class="l">this year</div></div>
-      </div>
-      <div class="d1-goal">
-        <span class="d1-check done"></span>
-        <span class="d1-emoji">🧼</span>
-        <span class="d1-txt done">Clean the bathroom</span>
-      </div>
-      <div class="d1-goal">
-        <span class="d1-check done"></span>
-        <span class="d1-emoji">📧</span>
-        <span class="d1-txt done">Send dance recital themes</span>
-      </div>
-      <div class="d1-goal">
-        <span class="d1-check"></span>
-        <span class="d1-emoji">🏡</span>
-        <span class="d1-txt">Clear out the backyard</span>
-      </div>
-      <div class="d1-goal">
-        <span class="d1-check"></span>
-        <span class="d1-emoji">📊</span>
-        <span class="d1-txt">Finish AEO project</span>
-      </div>
-      <div class="d1-mic">🎤</div>
     </div>
   </div>
-</section>
 
-<!-- DIRECTION 2 — NEON NIGHT -->
-<section class="direction">
-  <div class="direction-meta">
-    <span class="num">02</span>
-    <span class="name">Neon Night</span>
-    <span class="tag">premium · techy · sharp</span>
-  </div>
-  <p class="direction-desc">Deep black with glass cards and electric cyan glow. Mono type on labels and numbers gives a professional-tool feel. Inspired by Linear, Arc Browser, Opal's dark mode.</p>
-
-  <div class="phone">
-    <div class="phone-notch"></div>
-    <div class="phone-screen d2">
-      <div class="d2-head">
-        <div class="d2-eyebrow">// WED · 18.11.26</div>
-        <div class="d2-title">Today, <span class="accent">Daniel.</span></div>
-        <div class="d2-sub">3 of 5 complete · +12 points</div>
-      </div>
-      <div class="d2-tabs">
-        <span class="d2-tab active">Today</span>
-        <span class="d2-tab">Week</span>
-        <span class="d2-tab">Month</span>
-        <span class="d2-tab">Year</span>
-      </div>
-      <div class="d2-score">
-        <div class="d2-score-col a"><div class="n">12</div><div class="l">today</div></div>
-        <div class="d2-score-col b"><div class="n">45</div><div class="l">week</div></div>
-        <div class="d2-score-col c"><div class="n">218</div><div class="l">year</div></div>
-      </div>
-      <div class="d2-goal">
-        <span class="d2-check done"></span>
-        <span class="d2-txt done">Clean the bathroom</span>
-      </div>
-      <div class="d2-goal">
-        <span class="d2-check done"></span>
-        <span class="d2-txt done">Send dance recital themes</span>
-      </div>
-      <div class="d2-goal active">
-        <span class="d2-check"></span>
-        <span class="d2-txt">Clear out the backyard</span>
-        <span class="d2-chip">Now</span>
-      </div>
-      <div class="d2-goal">
-        <span class="d2-check"></span>
-        <span class="d2-txt">Finish AEO project</span>
-      </div>
-      <div class="d2-mic">🎤</div>
+  <div class="annotations">
+    <div class="ann">
+      <span class="pin">01</span>
+      <span class="copy"><b>Greeting with time of day</b> — switches between morning / afternoon / evening automatically. Pattern borrowed from Readwise emails and Craft's home.</span>
+    </div>
+    <div class="ann">
+      <span class="pin">02</span>
+      <span class="copy"><b>Scoreboard as a single card with thin rules</b> — Mercury Bank's balance panel. Less visual noise than three separate pills.</span>
+    </div>
+    <div class="ann">
+      <span class="pin">03</span>
+      <span class="copy"><b>Active row has a soft honey wash</b> — not loud. Points your eye to "what's next" without yelling. Streaks does this on the current day.</span>
+    </div>
+    <div class="ann">
+      <span class="pin">04</span>
+      <span class="copy"><b>Sage chip on "Us" goals</b> — shared goals with Chardae instantly readable from across the room. Yours stay unchipped.</span>
+    </div>
+    <div class="ann">
+      <span class="pin">05</span>
+      <span class="copy"><b>Mic fix: warm gradient circle with a gentle breathing animation.</b> Terracotta → coral — reads as "friendly tool", not "sinister button". Shadow spreads in the same warm tone so it feels native to the paper.</span>
     </div>
   </div>
-</section>
-
-<!-- DIRECTION 3 — PAPER -->
-<section class="direction">
-  <div class="direction-meta">
-    <span class="num">03</span>
-    <span class="name">Paper</span>
-    <span class="tag">calm · mature · confident</span>
-  </div>
-  <p class="direction-desc">Warm cream background, muted ink, terracotta + sage accents. Serif italic headers feel editorial, not loud. Inspired by Things 3, Streaks, Notion mobile, Farmer's Almanac.</p>
-
-  <div class="phone">
-    <div class="phone-notch"></div>
-    <div class="phone-screen d3">
-      <div class="d3-head">
-        <div class="d3-eyebrow">Wednesday · November 18</div>
-        <div class="d3-title">A good day<br>for progress.</div>
-        <div class="d3-sub">3 of 5 goals · 12 points earned</div>
-      </div>
-      <div class="d3-tabs">
-        <span class="d3-tab active">Today</span>
-        <span class="d3-tab">Weekly</span>
-        <span class="d3-tab">Monthly</span>
-        <span class="d3-tab">Yearly</span>
-      </div>
-      <div class="d3-score">
-        <div class="d3-score-col a"><div class="n">12</div><div class="l">today</div></div>
-        <div class="d3-score-col b"><div class="n">45</div><div class="l">week</div></div>
-        <div class="d3-score-col c"><div class="n">218</div><div class="l">year</div></div>
-      </div>
-      <div class="d3-section-head">Today's list</div>
-      <div class="d3-goal">
-        <span class="d3-check done"></span>
-        <span class="d3-txt done">Clean the bathroom</span>
-      </div>
-      <div class="d3-goal">
-        <span class="d3-check done"></span>
-        <span class="d3-txt done">Send dance recital themes</span>
-      </div>
-      <div class="d3-goal">
-        <span class="d3-check"></span>
-        <span class="d3-txt">Clear out the backyard</span>
-      </div>
-      <div class="d3-goal">
-        <span class="d3-check"></span>
-        <span class="d3-txt">Finish AEO project</span>
-      </div>
-      <div class="d3-mic">🎤</div>
-    </div>
-  </div>
-</section>
+</div>
 
 <div class="cta-card">
-  <h3>Which one feels right?</h3>
-  <p>Text me back the number or the name. I'll apply it to the live app and we'll iterate from there — fonts, animations, the tabs you use most. Nothing here is final.</p>
-  <div class="vote-row">
-    <span class="vote-pill"><b>01</b> &nbsp;Sunrise</span>
-    <span class="vote-pill"><b>02</b> &nbsp;Neon Night</span>
-    <span class="vote-pill"><b>03</b> &nbsp;Paper</span>
+  <h3>Does this land?</h3>
+  <p>Tell me yes and I'll apply it to the live app over the next bit. Or tell me what still feels off and I'll tune it. Specific feedback helps — the fonts, the warmth, the FAB, the chips, anything.</p>
+  <div class="opts">
+    <span class="opt-pill"><b>✓</b>Ship it</span>
+    <span class="opt-pill"><b>~</b>Close, tune X</span>
+    <span class="opt-pill"><b>✗</b>Try again</span>
   </div>
 </div>
 
