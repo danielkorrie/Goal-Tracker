@@ -600,6 +600,33 @@ header p{color:var(--muted);font-size:0.8rem;margin-top:0.25rem;font-weight:500;
 .gdel:hover{color:var(--red);}
 /* Section head accents */
 .p-section-head{font-family:'Fraunces',serif;font-weight:400;font-style:italic;font-size:1.15rem;color:var(--text);margin:0.4rem 0 0.6rem;}
+/* Today hero: was purple gradient — repaint to warm cream card with terra accent */
+.today-hero{background:var(--card);border:1px solid var(--border);color:var(--text);
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+.today-hero .today-who{color:var(--muted);}
+.today-hero .today-date{color:var(--text);}
+.today-hero .today-prog{color:var(--muted);}
+.today-hero .today-bar{background:var(--border);}
+.today-hero .today-bar-fill{background:linear-gradient(90deg,var(--d),var(--coral));}
+/* Today item (goal row) tuned for paper */
+.titem{background:var(--card);border:1px solid var(--border);color:var(--text);}
+.titem:hover{border-color:var(--d);}
+.tck{border-color:var(--d);color:var(--d);}
+.titem.done .tck{background:var(--d);color:#fff;border-color:var(--d);}
+.tact,.tdel{color:var(--muted);}
+.tact:hover,.tdel:hover{color:var(--d);}
+.tact.tmove:hover{color:var(--d);}
+/* Add buttons: repaint white-pink + gold to Paper palette */
+.abtn-w{background:var(--coral);color:#fff;}
+.abtn-d{background:var(--d);color:#fff;}
+.abtn-c{background:var(--c);color:#fff;}
+.abtn-g{background:var(--gold);color:#fff;}
+/* Score card leaked chardae border */
+.score-card.sc{border-color:var(--c);}
+.score-card.sc::before{background:var(--c);}
+/* Inputs across the app should feel like cream paper */
+input,select,textarea{background:var(--card);color:var(--text);border-color:var(--border);}
+.bud-add-row input,.bud-add-row select,.modal input,.modal textarea,.csel{background:var(--card);color:var(--text);border-color:var(--border);}
 </style>
 </head>
 <body>
