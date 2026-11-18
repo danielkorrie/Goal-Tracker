@@ -4300,6 +4300,8 @@ function parseVoiceTranscript(raw) {
 
   let curBucket = 'today';
   let curOwner = me;
+  let lastVerb = null; // carries forward to verb-less chunks like "AEO projects"
+  const VERB_RE = new RegExp('^(?:' + VP_VERBS + ')$', 'i');
   const results = [];
 
   for (const chunk of chunks) {
@@ -4330,14 +4332,31 @@ function parseVoiceTranscript(raw) {
     // leave bare words like "together", "our", "home", "chardae", "daniel" alone
     // so phrases like "put together", "our house" and names in the goal text survive.
     let clean = chunk
+      // Filler phrases people say before a goal — strip FIRST so compound forms like
+      // "today's goal is to" match in full before bare "today" gets stripped separately.
+      .replace(/\b(today'?s goal is to|today'?s goal is|today'?s goal|my goal for today is to|my goal for today is|the goal is to|the goal is|so i need to|so i want to|so i have to|so i should|so i wanna|i'?m going to|i am going to|i'?m gonna|i gonna|i'?d like to|i would like to|i wanna)\b/gi, '')
       .replace(/\b(this year|by the end of the year|end of year|yearly|this month|monthly|the month|this week|weekly|the week|for the week|today|tonight|this morning|this afternoon|this evening|for the house)\b/gi, '')
+      // Owner phrases
       .replace(/\b(for us|both of us|we need to|we should|we have to|we want to|my goal is to|my goal is|for me|i need to|i want to|i have to|i should|for myself|for her|she needs to|she wants to|she has to|her goal is|chardae needs to|chardae wants to|chardae and i)\b/gi, '')
+      .replace(/^['’]s\s+(?:goal\s+)?/i, '')  // "'s goal" or "'s" leftover from possessive strip
       .replace(/^(a|to|the|and|then|also|next|is|home|but|or|so)\s+/i, '')
       .replace(/\s+(and|then|also|or|but|so|plus)$/i, '')
       .replace(/\s+/g, ' ')
       .trim();
 
     // Capitalize first letter for readability
+    // Verb inheritance: if this chunk doesn't start with an action verb
+    // but the previous one did, prepend that verb so "AEO projects" becomes
+    // "finish AEO projects" after "finish AI projects".
+    if (clean.length > 1) {
+      const firstWord = clean.split(/\s+/)[0] || '';
+      if (VERB_RE.test(firstWord)) {
+        lastVerb = firstWord.toLowerCase();
+      } else if (lastVerb) {
+        clean = lastVerb + ' ' + clean;
+      }
+    }
+
     if (clean.length > 1) clean = clean[0].toUpperCase() + clean.slice(1);
 
     if (clean.length > 1) {
