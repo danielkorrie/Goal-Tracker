@@ -1540,7 +1540,14 @@ function skey(period, yr, sub, who) {
   return '';
 }
 function getG(period, yr, sub, who) { return DATA[skey(period, yr, sub, who)] || []; }
-function setG(period, yr, sub, who, arr) { DATA[skey(period, yr, sub, who)] = arr; }
+function setG(period, yr, sub, who, arr) {
+  const k = skey(period, yr, sub, who);
+  DATA[k] = arr;
+  // Guard this key against being reverted by an in-flight Firebase snapshot
+  // from another concurrent write. persistKey() also marks it; marking on
+  // the local mutator closes the gap between mutation and the persistKey call.
+  if (typeof markJustWrote === 'function') markJustWrote(k);
+}
 
 // ─── STORAGE LAYER (localStorage primary, Firebase optional) ──
 function lsLoad() {
@@ -1560,8 +1567,23 @@ function lsSave(key) {
 function lsDelete(key) {
   try { localStorage.removeItem(key); } catch(e) {}
 }
+// Keys we just wrote locally. The Firebase on('value') listener uses this
+// to ignore its own echo (and in-flight stale cloud snapshots) for a short
+// window, so a concurrent write to one key can't roll another key's local
+// optimistic update back to a stale cloud value.
+const JUST_WROTE_MS = 4000;
+const _justWrote = new Map();
+function markJustWrote(key) { _justWrote.set(key, Date.now()); }
+function wasJustWritten(key) {
+  const t = _justWrote.get(key);
+  if (!t) return false;
+  if (Date.now() - t > JUST_WROTE_MS) { _justWrote.delete(key); return false; }
+  return true;
+}
+
 async function persistKey(key) {
   lsSave(key);
+  markJustWrote(key);
   if (fbDb && fbRef) {
     try {
       const safeKey = key.replace(/\./g, '_DOT_'); // firebase forbids . in paths
@@ -1641,6 +1663,10 @@ async function initFirebase() {
       Object.entries(cd).forEach(([safeKey, val]) => {
         const realKey = safeKey.replace(/_DOT_/g, '.');
         if (Array.isArray(val)) {
+          // If this key was just written locally, trust our local copy.
+          // Prevents a snapshot that fired mid-flight for another write
+          // from clobbering our just-persisted optimistic update.
+          if (wasJustWritten(realKey)) return;
           const old = JSON.stringify(DATA[realKey] || []);
           const fresh = JSON.stringify(val);
           if (old !== fresh) {
@@ -2764,11 +2790,14 @@ async function toggleTodayItem(id) {
   haptic(18);
   lastDeleted = { kind:'today', date, item: JSON.parse(JSON.stringify(it)), fromCheck: true };
   setTodayListData(date, list.filter(x => x.id !== id));
-  // Bump today's completion count (powers the ring) + streak
+  render();
+  // Persist the today list FIRST. If we await other writes before this, an
+  // incoming Firebase snapshot can carry the stale cloud copy of the list
+  // and overwrite our optimistic local removal.
+  await persistToday(date);
   await incTodayDone(1);
   const { hitMilestone } = await bumpStreak();
   render();
-  await persistToday(date);
   doBurst();
   showUndoToast('✓ Done. Tap undo if wrong.');
   if (hitMilestone) setTimeout(() => showStreakCelebration(hitMilestone), 600);
