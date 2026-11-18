@@ -600,6 +600,21 @@ header p{color:var(--muted);font-size:0.8rem;margin-top:0.25rem;font-weight:500;
 .gdel:hover{color:var(--red);}
 /* Section head accents */
 .p-section-head{font-family:'Fraunces',serif;font-weight:400;font-style:italic;font-size:1.15rem;color:var(--text);margin:0.4rem 0 0.6rem;}
+/* ─── MICRO-MOTION ──────────────────────────────────────── */
+/* Soft fade+slide when a tab becomes active */
+.view.active{animation:viewIn 0.32s cubic-bezier(0.2,0.9,0.3,1);}
+@keyframes viewIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+/* Reward pulse on a goal row when its status flips */
+.gi-pulse{animation:giPulse 0.5s cubic-bezier(0.2,0.9,0.3,1);}
+@keyframes giPulse{
+  0%{transform:scale(1);box-shadow:0 0 0 0 rgba(198,93,60,0);}
+  35%{transform:scale(1.015);box-shadow:0 0 0 6px rgba(198,93,60,0.12);}
+  100%{transform:scale(1);box-shadow:0 0 0 0 rgba(198,93,60,0);}
+}
+/* Honor reduced-motion preference */
+@media (prefers-reduced-motion:reduce){
+  .view.active,.gi-pulse,.mic-fab{animation:none!important;}
+}
 /* Today hero: was purple gradient — repaint to warm cream card with terra accent */
 .today-hero{background:var(--card);border:1px solid var(--border);color:var(--text);
   box-shadow:0 2px 8px rgba(0,0,0,0.04);}
@@ -1357,6 +1372,27 @@ const CUR_MONTH = now.getMonth();
 const CUR_WEEK  = isoWeek(now);
 const FB_CONFIG_KEY = 'gt-fb-config';
 const STORAGE_PREFIX = 'gt5-';
+
+// ─── MICRO-MOTION HELPERS ────────────────────────────────
+function haptic(ms) {
+  // Silent no-op on desktop / anywhere without vibration (most iPhones expose it in Safari 16.4+).
+  try { if (navigator.vibrate) navigator.vibrate(ms || 12); } catch(_){}
+}
+function pulseEl(el, cls) {
+  if (!el) return;
+  cls = cls || 'gi-pulse';
+  el.classList.remove(cls);
+  void el.offsetWidth;        // force reflow so the animation restarts
+  el.classList.add(cls);
+  setTimeout(() => el.classList.remove(cls), 550);
+}
+function pulseGoalById(id) {
+  // After render() rebuilds the DOM, re-find the row and pulse it.
+  requestAnimationFrame(() => {
+    const btn = document.querySelector('[data-status][data-id="'+id+'"]');
+    if (btn) pulseEl(btn.closest('.gi'));
+  });
+}
 
 // Random-suffixed id so two creations in the same millisecond can't collide.
 function newId(prefix) {
@@ -2516,6 +2552,7 @@ async function toggleTodayItem(id) {
   const it = list.find(x => x.id === id);
   if (!it) return;
   // Check = delete (with undo). No strike-through, item is gone.
+  haptic(18);
   lastDeleted = { kind:'today', date, item: JSON.parse(JSON.stringify(it)) };
   setTodayListData(date, list.filter(x => x.id !== id));
   render();
@@ -3172,6 +3209,9 @@ async function setStatus(period, yr, sub, who, id, newStatus) {
   g.pts = statusPts(g);
   setG(period, yr, sub, who, goals);
   render();
+  // Haptic + pulse feedback on status change (done=stronger buzz).
+  haptic(g.status === 'done' ? 18 : g.status ? 10 : 6);
+  if (g.status) pulseGoalById(id);
   await persistKey(skey(period, yr, sub, who));
   if (g.status === 'done') showWin(who, g);
 }
@@ -3465,7 +3505,9 @@ function navMonth(d) {
 }
 
 function switchView(v) {
+  if (curView === v) return;   // avoid redundant work if tab already active
   curView = v;
+  haptic(8);
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.view===v));
   document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id==='view-'+v));
   render();
