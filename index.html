@@ -441,6 +441,56 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
 .gi-wrap{display:flex;flex-direction:column;}
 .carried{font-size:0.62rem;color:var(--muted);margin-top:0.15rem;font-style:italic;}
 
+/* VOICE */
+.mic-fab{position:fixed;right:1.1rem;bottom:1.2rem;width:58px;height:58px;border-radius:50%;
+  background:linear-gradient(135deg,var(--d),var(--c));border:none;color:#fff;font-size:1.5rem;
+  cursor:pointer;box-shadow:0 10px 24px #0008,0 0 0 3px #ffffff10;z-index:150;
+  display:flex;align-items:center;justify-content:center;transition:transform 0.15s,box-shadow 0.2s;}
+.mic-fab:hover{transform:scale(1.06);box-shadow:0 14px 30px #000a,0 0 0 3px var(--gold);}
+.mic-fab:active{transform:scale(0.95);}
+.mic-fab-lbl{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+  font-size:0.58rem;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+.voice-modal .modal{max-width:480px;}
+.voice-stage{display:flex;flex-direction:column;align-items:center;gap:0.9rem;padding:0.5rem 0;}
+.voice-orb{width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,var(--d),var(--c));
+  display:flex;align-items:center;justify-content:center;font-size:3rem;color:#fff;
+  box-shadow:0 0 0 0 var(--d);transition:box-shadow 0.3s;position:relative;}
+.voice-orb.listening{animation:orbPulse 1.6s ease-in-out infinite;}
+@keyframes orbPulse{
+  0%,100%{box-shadow:0 0 0 0 #4F9DFF88,0 0 0 0 #FF6BAE66;}
+  50%{box-shadow:0 0 0 18px #4F9DFF00,0 0 0 36px #FF6BAE00;}
+}
+.voice-ring{position:absolute;inset:-14px;border:2px solid var(--d);border-radius:50%;opacity:0;}
+.voice-orb.listening .voice-ring{animation:ringGrow 1.6s ease-out infinite;}
+@keyframes ringGrow{0%{transform:scale(0.9);opacity:0.7;}100%{transform:scale(1.3);opacity:0;}}
+.voice-status{font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:1rem;color:var(--gold);}
+.voice-transcript{width:100%;min-height:72px;max-height:180px;overflow-y:auto;
+  background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:0.7rem 0.9rem;
+  font-size:0.92rem;line-height:1.4;color:var(--text);text-align:left;}
+.voice-transcript:empty::before{content:"Try: Today clean the bathroom. Weekly four batches of laundry. For us this week, Thanksgiving package.";color:var(--muted);font-style:italic;font-size:0.8rem;}
+.voice-transcript .interim{color:var(--muted);font-style:italic;}
+.voice-tip{font-size:0.7rem;color:var(--muted);text-align:center;line-height:1.5;}
+.voice-tip b{color:var(--gold);}
+
+/* VOICE PREVIEW */
+.vp-group{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:0.6rem 0.7rem;margin-bottom:0.55rem;text-align:left;}
+.vp-group-hd{display:flex;align-items:center;gap:0.4rem;font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:1.5px;color:var(--gold);margin-bottom:0.45rem;}
+.vp-group-hd .vp-count{font-family:'Nunito',sans-serif;font-size:0.65rem;color:var(--muted);font-weight:800;letter-spacing:1px;margin-left:auto;}
+.vp-row{display:flex;align-items:center;gap:0.4rem;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:0.4rem 0.55rem;margin-bottom:0.3rem;}
+.vp-chip{font-size:0.6rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:0.18rem 0.45rem;border-radius:50px;cursor:pointer;flex-shrink:0;border:1px solid transparent;}
+.vp-chip-d{background:var(--d)22;color:var(--d);border-color:var(--d)55;}
+.vp-chip-c{background:var(--c)22;color:var(--c);border-color:var(--c)55;}
+.vp-chip-t{background:var(--gold)22;color:var(--gold);border-color:var(--gold)55;}
+.vp-chip-h{background:#8b5cf622;color:#a78bfa;border-color:#8b5cf655;}
+.vp-text{flex:1;background:transparent;border:none;color:var(--text);font-family:'Nunito',sans-serif;font-size:0.85rem;padding:0.1rem 0.2rem;outline:none;border-bottom:1px dashed transparent;min-width:0;}
+.vp-text:focus{border-bottom-color:var(--gold);}
+.vp-pts{background:var(--card2);border:1px solid var(--border);color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:0.8rem;padding:0.1rem 0.4rem;border-radius:6px;flex-shrink:0;cursor:pointer;letter-spacing:1px;}
+.vp-x{background:none;border:none;color:#ffffff30;cursor:pointer;font-size:1rem;padding:0 0.2rem;flex-shrink:0;transition:color 0.15s;}
+.vp-x:hover{color:var(--red);}
+.vp-empty{text-align:center;color:var(--muted);font-size:0.8rem;padding:1.4rem 0;}
+.vp-bucket-sel{background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:0.7rem;padding:0.15rem 0.35rem;border-radius:6px;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;}
+
 /* LOADING */
 .loading-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;}
 .loading-screen h2{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;
@@ -1110,6 +1160,50 @@ header p{color:var(--muted);font-size:0.78rem;margin-top:0.1rem;}
     <div class="mbtns">
       <button class="myes" id="edit-text-save">Save</button>
       <button class="mcls" id="edit-text-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- MIC FAB -->
+<button class="mic-fab" id="mic-fab" title="Add goals by voice" aria-label="Add goals by voice">
+  🎤
+  <span class="mic-fab-lbl">Voice</span>
+</button>
+
+<!-- VOICE MODAL -->
+<div class="modal-bg voice-modal" id="voice-modal">
+  <div class="modal">
+    <h2>🎤 Voice Add</h2>
+    <p>Say your goals. I'll sort them into buckets.</p>
+    <div class="voice-stage">
+      <div class="voice-orb" id="voice-orb">
+        <span>🎤</span>
+        <span class="voice-ring"></span>
+      </div>
+      <div class="voice-status" id="voice-status">Tap the mic to start</div>
+      <div class="voice-transcript" id="voice-transcript" contenteditable="true" spellcheck="true"></div>
+      <div class="voice-tip">
+        Say the bucket before each goal: <b>today</b>, <b>weekly</b>, <b>monthly</b>, <b>yearly</b>, <b>home</b>.<br>
+        Mention <b>us</b> or <b>Chardae</b> to switch who it's for. You can also type or use your keyboard's mic.
+      </div>
+    </div>
+    <div class="mbtns">
+      <button class="myes" id="voice-done-btn">Review Goals</button>
+      <button class="mcls" id="voice-cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- VOICE PREVIEW MODAL -->
+<div class="modal-bg" id="voice-preview-modal">
+  <div class="modal">
+    <h2>Review & Save</h2>
+    <p>Edit text, swap owner, or remove before saving.</p>
+    <div id="voice-preview-body" class="left"></div>
+    <div class="mbtns">
+      <button class="myes" id="voice-save-all">Save All</button>
+      <button class="mcls" id="voice-back-btn">Back to mic</button>
+      <button class="mno" id="voice-preview-cancel">Cancel</button>
     </div>
   </div>
 </div>
@@ -4047,6 +4141,355 @@ function setFbStatus(kind, msg) {
   el.className = 'status-row ' + kind;
   el.textContent = msg;
 }
+
+// ─── VOICE INPUT ─────────────────────────────────────────
+let _vr = null;              // SpeechRecognition instance
+let _vrFinal = '';           // accumulated final transcript
+let _vrInterim = '';         // live interim transcript
+let _vrListening = false;
+let _vpItems = [];           // parsed items awaiting commit
+
+function speechCtor() {
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function openVoiceModal() {
+  _vrFinal = '';
+  _vrInterim = '';
+  document.getElementById('voice-transcript').innerHTML = '';
+  document.getElementById('voice-modal').classList.add('open');
+  const SR = speechCtor();
+  if (!SR) {
+    document.getElementById('voice-status').textContent = "Type or use your keyboard's mic";
+    return;
+  }
+  document.getElementById('voice-status').textContent = 'Starting...';
+  startVoice();
+}
+
+function closeVoiceModal() {
+  stopVoice();
+  document.getElementById('voice-modal').classList.remove('open');
+}
+
+function startVoice() {
+  const SR = speechCtor();
+  if (!SR) return;
+  try { if (_vr) _vr.stop(); } catch(_){}
+  // Preserve whatever is already in the transcript field (manual edits or prior speech)
+  const existing = (document.getElementById('voice-transcript').innerText || '').trim();
+  _vrFinal = existing ? existing + ' ' : '';
+  _vrInterim = '';
+  _vr = new SR();
+  _vr.lang = 'en-US';
+  _vr.continuous = true;
+  _vr.interimResults = true;
+
+  _vr.onstart = () => {
+    _vrListening = true;
+    document.getElementById('voice-orb').classList.add('listening');
+    document.getElementById('voice-status').textContent = 'Listening...';
+  };
+  _vr.onresult = (ev) => {
+    let interim = '';
+    for (let i = ev.resultIndex; i < ev.results.length; i++) {
+      const r = ev.results[i];
+      if (r.isFinal) _vrFinal += r[0].transcript + ' ';
+      else interim += r[0].transcript;
+    }
+    _vrInterim = interim;
+    const t = document.getElementById('voice-transcript');
+    t.innerHTML = escHtml(_vrFinal.trim()) + (interim ? ' <span class="interim">'+escHtml(interim)+'</span>' : '');
+    t.scrollTop = t.scrollHeight;
+  };
+  _vr.onerror = (ev) => {
+    document.getElementById('voice-status').textContent = 'Error: ' + (ev.error || 'unknown') + ' · tap mic to retry';
+    document.getElementById('voice-orb').classList.remove('listening');
+    _vrListening = false;
+  };
+  _vr.onend = () => {
+    _vrListening = false;
+    document.getElementById('voice-orb').classList.remove('listening');
+    if (document.getElementById('voice-modal').classList.contains('open')) {
+      document.getElementById('voice-status').textContent = 'Paused · tap mic to continue';
+    }
+  };
+
+  try { _vr.start(); } catch(e) {
+    document.getElementById('voice-status').textContent = 'Could not start mic';
+  }
+}
+
+function stopVoice() {
+  if (!_vr) return;
+  try { _vr.stop(); } catch(_){}
+  _vrListening = false;
+  document.getElementById('voice-orb').classList.remove('listening');
+}
+
+// Parse a transcript into {bucket, owner, text, pts}[].
+// Buckets: today | weekly | monthly | yearly | home
+// Owners:  daniel | chardae | together
+function parseVoiceTranscript(raw) {
+  if (!raw) return [];
+  const me = getMe() || 'daniel';
+  const partner = (me === 'daniel') ? 'chardae' : 'daniel';
+
+  // Normalize + split into small clauses on sentence/pause boundaries.
+  const chunks = raw
+    .replace(/\s+/g, ' ')
+    .split(/[.!?;,]|(?:\bthen\b)|(?:\balso\b)|(?:\bnext\b)/i)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  let curBucket = 'today';
+  let curOwner = me;
+  const results = [];
+
+  for (const chunk of chunks) {
+    const low = ' ' + chunk.toLowerCase() + ' ';
+
+    // Bucket detection (most specific first)
+    let bucket = null;
+    if (/\b(this year|yearly|by the end of the year|end of year)\b/.test(low)) bucket = 'yearly';
+    else if (/\b(this month|monthly|the month)\b/.test(low)) bucket = 'monthly';
+    else if (/\b(this week|weekly|the week|for the week)\b/.test(low)) bucket = 'weekly';
+    else if (/\b(today|tonight|this morning|this afternoon|this evening)\b/.test(low)) bucket = 'today';
+    else if (/\b(home|house|apartment|for the house)\b/.test(low) && !/\bat home\b/.test(low)) bucket = 'home';
+
+    // Owner detection
+    let owner = null;
+    if (/\b(for us|both of us|together|us need|we need|we should|we have to|we want|our )/.test(low)) owner = 'together';
+    else if (/\bchardae\b|\b(for her|she needs|she wants|she has to|her goal)\b/.test(low)) owner = 'chardae';
+    else if (/\b(for me|i need|i want|i have to|i should|my goal|for myself)\b/.test(low)) owner = me;
+    else if (/\bdaniel\b/.test(low)) owner = 'daniel';
+
+    if (bucket) curBucket = bucket;
+    if (owner) curOwner = owner;
+
+    // Strip bucket + owner keyword fragments. Only strip phrases that are unambiguous;
+    // leave bare words like "together", "our", "home", "chardae", "daniel" alone
+    // so phrases like "put together", "our house" and names in the goal text survive.
+    let clean = chunk
+      .replace(/\b(this year|by the end of the year|end of year|yearly|this month|monthly|the month|this week|weekly|the week|for the week|today|tonight|this morning|this afternoon|this evening|for the house)\b/gi, '')
+      .replace(/\b(for us|both of us|we need to|we should|we have to|we want to|my goal is to|my goal is|for me|i need to|i want to|i have to|i should|for myself|for her|she needs to|she wants to|she has to|her goal is|chardae needs to|chardae wants to|chardae and i)\b/gi, '')
+      .replace(/^(a|to|the|and|then|also|next|is|do|go|get|home)\s+/i, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    // Capitalize first letter for readability
+    if (clean.length > 1) clean = clean[0].toUpperCase() + clean.slice(1);
+
+    if (clean.length > 1) {
+      const pts = curBucket === 'weekly' ? 5
+                : curBucket === 'monthly' ? 10
+                : curBucket === 'yearly' ? 20
+                : null;
+      results.push({
+        id: newId('v'),
+        bucket: curBucket,
+        owner: curOwner,
+        text: clean,
+        pts
+      });
+    }
+  }
+  return results;
+}
+
+function openVoicePreview() {
+  stopVoice();
+  // Prefer whatever is in the transcript field right now (includes any manual edits)
+  const fieldText = (document.getElementById('voice-transcript').innerText || '').trim();
+  const full = fieldText || (_vrFinal + ' ' + _vrInterim).trim();
+  _vpItems = parseVoiceTranscript(full);
+  document.getElementById('voice-modal').classList.remove('open');
+  renderVoicePreview();
+  document.getElementById('voice-preview-modal').classList.add('open');
+}
+
+function closeVoicePreview() {
+  document.getElementById('voice-preview-modal').classList.remove('open');
+  _vpItems = [];
+}
+
+function backToVoice() {
+  document.getElementById('voice-preview-modal').classList.remove('open');
+  document.getElementById('voice-modal').classList.add('open');
+}
+
+const VP_BUCKETS = [
+  { key:'today',   emoji:'☀️', label:"Today" },
+  { key:'weekly',  emoji:'📅', label:"This Week" },
+  { key:'monthly', emoji:'🗓️', label:"This Month" },
+  { key:'yearly',  emoji:'⭐', label:"This Year" },
+  { key:'home',    emoji:'🏠', label:"Home" },
+];
+const VP_OWNER_CHIP = { daniel:'vp-chip-d', chardae:'vp-chip-c', together:'vp-chip-t' };
+const VP_OWNER_SHORT = { daniel:'D', chardae:'C', together:'US' };
+const VP_OWNER_CYCLE = { daniel:'chardae', chardae:'together', together:'daniel' };
+
+function renderVoicePreview() {
+  const body = document.getElementById('voice-preview-body');
+  if (!_vpItems.length) {
+    body.innerHTML = '<div class="vp-empty">Nothing caught. Tap <b>Back to mic</b> and try again.</div>';
+    return;
+  }
+  let html = '';
+  for (const b of VP_BUCKETS) {
+    const items = _vpItems.filter(x => x.bucket === b.key);
+    if (!items.length) continue;
+    html += '<div class="vp-group">';
+    html += '<div class="vp-group-hd">'+b.emoji+' '+b.label+'<span class="vp-count">'+items.length+'</span></div>';
+    for (const it of items) {
+      const chipCls = b.key === 'home' ? 'vp-chip-h' : VP_OWNER_CHIP[it.owner];
+      const chipTxt = b.key === 'home' ? 'HOME' : VP_OWNER_SHORT[it.owner];
+      const chipTitle = b.key === 'home' ? 'Shared home list' : 'Tap to change owner';
+      const ptsHtml = (it.pts != null)
+        ? '<button class="vp-pts" data-vp-pts="'+it.id+'" title="Change points">'+it.pts+'p</button>'
+        : '';
+      html += '<div class="vp-row" data-vp-row="'+it.id+'">'
+        + '<button class="vp-chip '+chipCls+'" data-vp-owner="'+it.id+'" title="'+chipTitle+'"'+(b.key==='home'?' disabled':'')+'>'+chipTxt+'</button>'
+        + '<select class="vp-bucket-sel" data-vp-bucket="'+it.id+'" title="Change bucket">'
+          + VP_BUCKETS.map(x=>'<option value="'+x.key+'"'+(x.key===it.bucket?' selected':'')+'>'+x.emoji+' '+x.label+'</option>').join('')
+        + '</select>'
+        + '<input class="vp-text" type="text" value="'+escHtml(it.text).replace(/"/g,'&quot;')+'" data-vp-text="'+it.id+'" />'
+        + ptsHtml
+        + '<button class="vp-x" data-vp-x="'+it.id+'" title="Remove">✕</button>'
+        + '</div>';
+    }
+    html += '</div>';
+  }
+  body.innerHTML = html;
+}
+
+async function commitVoicePreview() {
+  // Sync edits from inputs to _vpItems
+  document.querySelectorAll('[data-vp-text]').forEach(el => {
+    const id = el.dataset.vpText;
+    const it = _vpItems.find(x => x.id === id);
+    if (it) it.text = el.value.trim();
+  });
+
+  const toSave = _vpItems.filter(x => x.text && x.text.length > 1);
+  if (!toSave.length) { closeVoicePreview(); return; }
+
+  let added = 0;
+  const persistKeys = new Set();
+
+  for (const it of toSave) {
+    if (it.bucket === 'today') {
+      // addTodayItem persists for us; we call it once per item.
+      await addTodayItem(it.text, todayISO());
+      added++;
+    } else if (it.bucket === 'home') {
+      const list = getG('home', null, 'buy', null);
+      list.push({ id: newId('h'), text: it.text, done:false });
+      setG('home', null, 'buy', null, list);
+      persistKeys.add(skey('home', null, 'buy', null));
+      added++;
+    } else {
+      // weekly / monthly / yearly
+      const sub = it.bucket === 'weekly' ? selWeek
+                : it.bucket === 'monthly' ? selMonth
+                : null;
+      const yr = selYear;
+      const who = it.owner;
+      const goals = getG(it.bucket, yr, sub, who);
+      const pts = it.pts || (it.bucket === 'weekly' ? 5 : it.bucket === 'monthly' ? 10 : 20);
+      goals.push({ id: newId(who[0]+it.bucket[0]), text: it.text, pts, maxPts: pts, status: null, done: false });
+      setG(it.bucket, yr, sub, who, goals);
+      persistKeys.add(skey(it.bucket, yr, sub, who));
+      added++;
+    }
+  }
+
+  render();
+  for (const k of persistKeys) {
+    try { await persistKey(k); } catch(_){}
+  }
+
+  closeVoicePreview();
+  showAddToast('✓ Added ' + added + ' goal' + (added===1?'':'s'));
+}
+
+// Wire voice buttons
+document.addEventListener('click', e => {
+  if (e.target.closest('#mic-fab')) { openVoiceModal(); return; }
+
+  if (e.target.id === 'voice-cancel-btn' || (e.target.id === 'voice-modal' && e.target.classList.contains('modal-bg'))) {
+    closeVoiceModal(); return;
+  }
+  if (e.target.id === 'voice-done-btn') { openVoicePreview(); return; }
+  if (e.target.closest('#voice-orb')) {
+    if (_vrListening) stopVoice();
+    else startVoice();
+    return;
+  }
+
+  if (e.target.id === 'voice-preview-cancel' || (e.target.id === 'voice-preview-modal' && e.target.classList.contains('modal-bg'))) {
+    closeVoicePreview(); return;
+  }
+  if (e.target.id === 'voice-back-btn') { backToVoice(); return; }
+  if (e.target.id === 'voice-save-all')  { commitVoicePreview(); return; }
+
+  const xBtn = e.target.closest('[data-vp-x]');
+  if (xBtn) {
+    const id = xBtn.dataset.vpX;
+    _vpItems = _vpItems.filter(x => x.id !== id);
+    // capture edits before re-render
+    document.querySelectorAll('[data-vp-text]').forEach(el => {
+      const it = _vpItems.find(x => x.id === el.dataset.vpText);
+      if (it) it.text = el.value;
+    });
+    renderVoicePreview();
+    return;
+  }
+  const ownerBtn = e.target.closest('[data-vp-owner]');
+  if (ownerBtn && !ownerBtn.disabled) {
+    const id = ownerBtn.dataset.vpOwner;
+    const it = _vpItems.find(x => x.id === id);
+    if (it) {
+      it.owner = VP_OWNER_CYCLE[it.owner] || 'daniel';
+      document.querySelectorAll('[data-vp-text]').forEach(el => {
+        const t = _vpItems.find(x => x.id === el.dataset.vpText);
+        if (t) t.text = el.value;
+      });
+      renderVoicePreview();
+    }
+    return;
+  }
+  const ptsBtn = e.target.closest('[data-vp-pts]');
+  if (ptsBtn) {
+    const id = ptsBtn.dataset.vpPts;
+    const it = _vpItems.find(x => x.id === id);
+    if (!it) return;
+    const next = it.pts === 5 ? 10 : it.pts === 10 ? 20 : it.pts === 20 ? 1 : 5;
+    it.pts = next;
+    ptsBtn.textContent = next + 'p';
+    return;
+  }
+});
+
+document.addEventListener('change', e => {
+  const sel = e.target.closest('[data-vp-bucket]');
+  if (!sel) return;
+  const id = sel.dataset.vpBucket;
+  const it = _vpItems.find(x => x.id === id);
+  if (!it) return;
+  // capture text edits
+  document.querySelectorAll('[data-vp-text]').forEach(el => {
+    const t = _vpItems.find(x => x.id === el.dataset.vpText);
+    if (t) t.text = el.value;
+  });
+  it.bucket = sel.value;
+  // Reset pts if bucket changed category
+  if (it.bucket === 'weekly') it.pts = 5;
+  else if (it.bucket === 'monthly') it.pts = 10;
+  else if (it.bucket === 'yearly') it.pts = 20;
+  else it.pts = null;
+  renderVoicePreview();
+});
 
 // ─── INIT ────────────────────────────────────────────────
 async function init() {
