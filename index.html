@@ -4160,11 +4160,26 @@ function openVoiceModal() {
   document.getElementById('voice-modal').classList.add('open');
   const SR = speechCtor();
   if (!SR) {
-    document.getElementById('voice-status').textContent = "Type or use your keyboard's mic";
+    document.getElementById('voice-status').textContent = "Tap the text box and use your keyboard's mic";
     return;
   }
-  document.getElementById('voice-status').textContent = 'Starting...';
-  startVoice();
+  document.getElementById('voice-status').textContent = 'Tap the mic to start';
+  // Don't auto-start. iOS Safari needs a direct user gesture on the mic itself,
+  // plus a mediaDevices permission priming step. User taps the orb to begin.
+}
+
+async function primeMicPermission() {
+  // iOS Safari often blocks webkitSpeechRecognition unless mic permission
+  // has been granted via getUserMedia first. We try it and immediately stop.
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return true;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach(t => t.stop());
+    return true;
+  } catch (e) {
+    document.getElementById('voice-status').textContent = 'Mic permission denied · type below instead';
+    return false;
+  }
 }
 
 function closeVoiceModal() {
@@ -4172,7 +4187,7 @@ function closeVoiceModal() {
   document.getElementById('voice-modal').classList.remove('open');
 }
 
-function startVoice() {
+async function startVoice() {
   const SR = speechCtor();
   if (!SR) return;
   try { if (_vr) _vr.stop(); } catch(_){}
@@ -4180,12 +4195,25 @@ function startVoice() {
   const existing = (document.getElementById('voice-transcript').innerText || '').trim();
   _vrFinal = existing ? existing + ' ' : '';
   _vrInterim = '';
+
+  document.getElementById('voice-status').textContent = 'Requesting mic...';
+  const ok = await primeMicPermission();
+  if (!ok) return;
+
   _vr = new SR();
   _vr.lang = 'en-US';
   _vr.continuous = true;
   _vr.interimResults = true;
 
+  // Safety timer: if onstart never fires within 2.5s, nudge user to the text fallback
+  let startTimer = setTimeout(() => {
+    if (!_vrListening) {
+      document.getElementById('voice-status').textContent = "Mic didn't start · tap text box & use keyboard mic";
+    }
+  }, 2500);
+
   _vr.onstart = () => {
+    clearTimeout(startTimer);
     _vrListening = true;
     document.getElementById('voice-orb').classList.add('listening');
     document.getElementById('voice-status').textContent = 'Listening...';
@@ -4203,20 +4231,33 @@ function startVoice() {
     t.scrollTop = t.scrollHeight;
   };
   _vr.onerror = (ev) => {
-    document.getElementById('voice-status').textContent = 'Error: ' + (ev.error || 'unknown') + ' · tap mic to retry';
+    clearTimeout(startTimer);
+    const err = (ev && ev.error) || 'unknown';
+    let msg = 'Error: ' + err;
+    if (err === 'not-allowed' || err === 'service-not-allowed') msg = 'Mic blocked · type below instead';
+    else if (err === 'no-speech') msg = "Didn't catch anything · tap mic to try again";
+    else if (err === 'audio-capture') msg = 'No mic found · type below';
+    else msg = msg + ' · tap mic to retry';
+    document.getElementById('voice-status').textContent = msg;
     document.getElementById('voice-orb').classList.remove('listening');
     _vrListening = false;
   };
   _vr.onend = () => {
+    clearTimeout(startTimer);
     _vrListening = false;
     document.getElementById('voice-orb').classList.remove('listening');
     if (document.getElementById('voice-modal').classList.contains('open')) {
-      document.getElementById('voice-status').textContent = 'Paused · tap mic to continue';
+      const cur = document.getElementById('voice-status').textContent;
+      // Don't clobber an error message onend fires right after
+      if (!/error|blocked|catch|type|didn't start/i.test(cur)) {
+        document.getElementById('voice-status').textContent = 'Paused · tap mic to continue';
+      }
     }
   };
 
   try { _vr.start(); } catch(e) {
-    document.getElementById('voice-status').textContent = 'Could not start mic';
+    clearTimeout(startTimer);
+    document.getElementById('voice-status').textContent = 'Could not start mic · type below';
   }
 }
 
