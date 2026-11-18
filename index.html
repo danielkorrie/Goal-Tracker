@@ -600,6 +600,48 @@ header p{color:var(--muted);font-size:0.8rem;margin-top:0.25rem;font-weight:500;
 .gdel:hover{color:var(--red);}
 /* Section head accents */
 .p-section-head{font-family:'Fraunces',serif;font-weight:400;font-style:italic;font-size:1.15rem;color:var(--text);margin:0.4rem 0 0.6rem;}
+/* ─── TODAY HERO v3 (ring + greeting) ───────────────────── */
+.today-hero{display:flex;align-items:center;gap:1rem;padding:1rem 1.1rem;}
+.today-hero-ring{position:relative;width:86px;height:86px;flex-shrink:0;}
+.today-hero-ring svg{width:100%;height:100%;display:block;}
+.today-hero-ring .ring-track{stroke:var(--border);}
+.today-hero-ring .ring-prog{stroke:var(--d);transition:stroke-dashoffset 0.6s cubic-bezier(0.2,0.9,0.3,1);}
+.today-hero-ring.full .ring-prog{stroke:var(--coral);filter:drop-shadow(0 0 6px rgba(226,115,83,0.4));}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;}
+.ring-done{font-family:'Fraunces',serif;font-weight:500;font-style:italic;font-size:1.65rem;color:var(--text);}
+.ring-of{font-size:0.62rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-top:0.2rem;}
+.ring-of span{color:var(--muted);}
+.today-hero-text{flex:1;min-width:0;text-align:left;}
+.today-hero .today-who{font-family:'Fraunces',serif;font-weight:400;font-style:italic;font-size:1.3rem;color:var(--text);text-transform:none;letter-spacing:-0.3px;margin-bottom:0.15rem;}
+.today-hero .today-date{font-family:'Inter',sans-serif;font-weight:600;font-size:0.82rem;color:var(--muted);font-style:normal;letter-spacing:0;}
+.today-hero .today-sub{font-size:0.78rem;color:var(--muted);margin-top:0.25rem;}
+
+/* ─── STREAK BADGE (header) ─────────────────────────────── */
+.streak-badge{display:inline-flex;align-items:center;gap:0.3rem;background:linear-gradient(135deg,#F3E4C8,#E8D1A7);
+  border:1px solid #D4B47A;border-radius:50px;padding:0.25rem 0.65rem;
+  font-weight:700;font-size:0.78rem;color:#6B4A1F;cursor:default;}
+.streak-badge .streak-flame{font-size:0.85rem;filter:drop-shadow(0 0 4px rgba(255,140,0,0.4));animation:flameFlicker 2.5s ease-in-out infinite;}
+.streak-badge .streak-num{font-family:'Fraunces',serif;font-weight:600;font-style:italic;font-size:0.95rem;line-height:1;color:#3D2A10;}
+@keyframes flameFlicker{0%,100%{transform:scale(1) rotate(-1deg);}50%{transform:scale(1.12) rotate(2deg);}}
+
+/* ─── STREAK CELEBRATION ────────────────────────────────── */
+.streak-cel{position:fixed;inset:0;background:rgba(39,32,26,0.72);backdrop-filter:blur(8px);
+  z-index:300;display:none;align-items:center;justify-content:center;padding:1rem;}
+.streak-cel.open{display:flex;animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.streak-cel-inner{background:var(--card);border:1px solid var(--border);border-radius:24px;
+  padding:2rem 1.6rem 1.4rem;max-width:380px;width:100%;text-align:center;
+  box-shadow:0 30px 80px rgba(0,0,0,0.3);animation:popBig 0.5s cubic-bezier(0.2,0.9,0.3,1);}
+@keyframes popBig{from{transform:scale(0.7);opacity:0;}to{transform:scale(1);opacity:1;}}
+.streak-cel-emoji{font-size:4rem;line-height:1;margin-bottom:0.5rem;animation:flameFlicker 1.8s ease-in-out infinite;}
+.streak-cel-days{font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--d);font-weight:700;margin-bottom:0.3rem;}
+.streak-cel-title{font-family:'Fraunces',serif;font-weight:400;font-style:italic;font-size:1.9rem;color:var(--text);line-height:1.1;margin-bottom:0.5rem;}
+.streak-cel-sub{color:var(--muted);font-size:0.9rem;line-height:1.5;margin-bottom:1.2rem;}
+.streak-cel-btn{background:var(--d);color:#fff;border:none;padding:0.7rem 1.6rem;border-radius:50px;
+  font-family:'Inter',sans-serif;font-weight:700;font-size:0.95rem;cursor:pointer;transition:transform 0.1s;}
+.streak-cel-btn:hover{transform:scale(1.03);}
+.streak-cel-btn:active{transform:scale(0.97);}
+
 /* ─── MICRO-MOTION ──────────────────────────────────────── */
 /* Soft fade+slide when a tab becomes active */
 .view.active{animation:viewIn 0.32s cubic-bezier(0.2,0.9,0.3,1);}
@@ -657,6 +699,10 @@ input,select,textarea{background:var(--card);color:var(--text);border-color:var(
   <h1>Daniel <span class="accent">&amp;</span> Chardae</h1>
   <p>Shared goals · Today, Weekly, Monthly, Yearly, Home</p>
   <div class="top-row">
+    <div class="streak-badge" id="streak-badge" style="display:none;" title="Daily streak">
+      <span class="streak-flame">🔥</span>
+      <span class="streak-num">0</span>
+    </div>
     <div class="sync-badge local" id="sync-badge">
       <span class="sync-dot"></span>
       <span id="sync-text">Local only</span>
@@ -718,11 +764,22 @@ input,select,textarea{background:var(--card);color:var(--text);border-color:var(
   <!-- TODAY VIEW -->
   <div class="view active" id="view-today">
     <div class="today-hero">
-      <div class="today-who" id="today-who">👤 My Today</div>
-      <div class="today-date" id="today-date">—</div>
-      <div class="today-prog">
-        <div class="today-prog-lbl"><span id="today-prog-cnt">0 / 0 done</span></div>
-        <div class="prog-bar" style="height:6px;"><div class="prog-fill" id="today-prog-fill" style="width:0%;background:#fff;"></div></div>
+      <div class="today-hero-ring" id="today-ring">
+        <svg viewBox="0 0 84 84" aria-hidden="true">
+          <circle class="ring-track" cx="42" cy="42" r="36" fill="none" stroke-width="7"></circle>
+          <circle class="ring-prog"  cx="42" cy="42" r="36" fill="none" stroke-width="7"
+            stroke-linecap="round" transform="rotate(-90 42 42)"
+            stroke-dasharray="226.19" stroke-dashoffset="226.19"></circle>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-done" id="today-ring-done">0</div>
+          <div class="ring-of">of <span id="today-ring-total">0</span></div>
+        </div>
+      </div>
+      <div class="today-hero-text">
+        <div class="today-who" id="today-who">My Today</div>
+        <div class="today-date" id="today-date">—</div>
+        <div class="today-sub" id="today-sub">Nothing on the list yet</div>
       </div>
     </div>
     <div id="today-list"></div>
@@ -1352,6 +1409,17 @@ input,select,textarea{background:var(--card);color:var(--text);border-color:var(
   </div>
 </div>
 
+<!-- STREAK CELEBRATION -->
+<div class="streak-cel" id="streak-cel">
+  <div class="streak-cel-inner">
+    <div class="streak-cel-emoji">🔥</div>
+    <div class="streak-cel-days">7-day streak</div>
+    <div class="streak-cel-title">One week strong!</div>
+    <div class="streak-cel-sub">Seven days in a row. This is the habit forming.</div>
+    <button class="streak-cel-btn" id="streak-cel-btn">Keep going</button>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast">
   <span id="toast-msg"></span>
@@ -1467,6 +1535,8 @@ function skey(period, yr, sub, who) {
   if (period === 'weekly-tpl')    return STORAGE_PREFIX + 'wt-' + who;                                  // who = daniel|chardae|together
   if (period === 'weekly-tpl-mk') return STORAGE_PREFIX + 'wt-seeded-' + yr + '-' + sub + '-' + who;    // sub = weekNum
   if (period === 'home')          return STORAGE_PREFIX + 'home-' + sub;                                // sub = catId
+  if (period === 'streak')        return STORAGE_PREFIX + 'streak-' + who;                              // who = daniel|chardae
+  if (period === 'today-done')    return STORAGE_PREFIX + 'tdone-' + sub + '-' + who;                   // sub = ISO date, who = me
   return '';
 }
 function getG(period, yr, sub, who) { return DATA[skey(period, yr, sub, who)] || []; }
@@ -2494,6 +2564,145 @@ function lastRollKey() { return STORAGE_PREFIX + 'today-last-roll-' + getMe(); }
 function getLastRoll() { return localStorage.getItem(lastRollKey()); }
 function setLastRoll(date) { localStorage.setItem(lastRollKey(), date); }
 
+// ─── STREAK ──────────────────────────────────────────────
+// Each user has a streak object: { current, longest, lastCheckDate }.
+// Increments by 1 the first time a goal is checked on a new day. If more
+// than one calendar day has passed since lastCheckDate, the streak resets
+// back to 1. Milestones at 7/14/30/50/100/200/365 days get a celebration.
+function getStreak(who) {
+  const key = skey('streak', null, null, who);
+  const raw = DATA[key];
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return { current: 0, longest: 0, lastCheckDate: null };
+  }
+  return { current: raw.current || 0, longest: raw.longest || 0, lastCheckDate: raw.lastCheckDate || null };
+}
+function setStreak(who, s) {
+  DATA[skey('streak', null, null, who)] = s;
+}
+async function persistStreak(who) {
+  await persistKey(skey('streak', null, null, who));
+}
+
+// Returns {hitMilestone: n|null, s: newStreakObj}.
+async function bumpStreak() {
+  const me = getMe();
+  if (!me) return { hitMilestone: null, s: null };
+  const today = todayISO();
+  const s = getStreak(me);
+  if (s.lastCheckDate === today) return { hitMilestone: null, s };
+
+  const yesterday = isoAddDays(today, -1);
+  const prevCur = s.current;
+  if (s.lastCheckDate === yesterday) {
+    s.current = (s.current || 0) + 1;
+  } else {
+    s.current = 1; // reset or first-ever
+  }
+  s.longest = Math.max(s.longest || 0, s.current);
+  s.lastCheckDate = today;
+  setStreak(me, s);
+  await persistStreak(me);
+
+  const milestones = [7, 14, 30, 50, 100, 200, 365];
+  const hit = milestones.find(m => s.current === m && prevCur !== m) || null;
+  // Update the small flame indicator in the header
+  renderStreakBadge();
+  return { hitMilestone: hit, s };
+}
+
+// Called when a goal is undone (e.g. uncheck a status). If we incremented
+// today's streak and this undo brings today's total completions back to
+// zero, revert the streak increment so the day no longer counts.
+async function maybeRevertStreakIfNothingDoneToday() {
+  const me = getMe();
+  if (!me) return;
+  const today = todayISO();
+  const s = getStreak(me);
+  if (s.lastCheckDate !== today) return;   // streak already not counting today
+  if (didAnythingToday(me)) return;         // still something done today
+  // Nothing done today any more -> revert the day
+  s.current = Math.max(0, s.current - 1);
+  s.lastCheckDate = isoAddDays(today, -1);  // pretend we haven't checked today yet
+  setStreak(me, s);
+  await persistStreak(me);
+  renderStreakBadge();
+}
+
+// True if the user has any completed goal today (today-done count OR
+// any weekly/monthly/yearly goal marked done with the date... but we
+// don't track status timestamps, so we only look at today-done for now).
+function didAnythingToday(me) {
+  const date = todayISO();
+  const n = getTodayDoneCount(date, me);
+  return n > 0;
+}
+
+// ─── TODAY COMPLETED COUNTER ─────────────────────────────
+// Since checking a today item deletes it, we keep a separate per-day
+// count of how many were completed so the completion ring can fill.
+function getTodayDoneCount(date, who) {
+  who = who || getMe();
+  if (!who) return 0;
+  const raw = DATA[skey('today-done', null, date, who)];
+  if (!raw) return 0;
+  if (typeof raw === 'number') return raw;
+  if (raw && typeof raw.count === 'number') return raw.count;
+  return 0;
+}
+function setTodayDoneCount(date, who, n) {
+  who = who || getMe();
+  if (!who) return;
+  DATA[skey('today-done', null, date, who)] = { count: Math.max(0, n) };
+}
+async function incTodayDone(delta) {
+  const me = getMe();
+  if (!me) return;
+  const date = todayISO();
+  const n = getTodayDoneCount(date, me);
+  setTodayDoneCount(date, me, n + (delta || 1));
+  await persistKey(skey('today-done', null, date, me));
+}
+
+// ─── STREAK CELEBRATION ──────────────────────────────────
+function showStreakCelebration(days) {
+  const el = document.getElementById('streak-cel');
+  if (!el) return;
+  const msgs = {
+    7:   { emoji:'🔥',  title:'One week strong!',   sub:'Seven days in a row. This is the habit forming.' },
+    14:  { emoji:'🔥',  title:'Two weeks straight', sub:'Streaks this long are rare. Keep going.' },
+    30:  { emoji:'🏆', title:'Thirty days!',       sub:"You've built a real habit." },
+    50:  { emoji:'⭐', title:'Fifty days!',        sub:'Halfway to 100. Legendary.' },
+    100: { emoji:'💯', title:'One hundred days!',   sub:"You're in the top 1% of consistent people." },
+    200: { emoji:'🎯', title:'Two hundred days',   sub:'This is who you are now.' },
+    365: { emoji:'👑', title:'ONE FULL YEAR',       sub:'A whole year of showing up.' },
+  };
+  const m = msgs[days] || { emoji:'🔥', title:days+' days!', sub:'Keep the streak alive.' };
+  el.querySelector('.streak-cel-emoji').textContent = m.emoji;
+  el.querySelector('.streak-cel-title').textContent = m.title;
+  el.querySelector('.streak-cel-sub').textContent = m.sub;
+  el.querySelector('.streak-cel-days').textContent = days + '-day streak';
+  el.classList.add('open');
+  haptic(40);
+  setTimeout(() => haptic(25), 180);
+  setTimeout(() => haptic(25), 360);
+}
+function closeStreakCelebration() {
+  const el = document.getElementById('streak-cel');
+  if (el) el.classList.remove('open');
+}
+
+function renderStreakBadge() {
+  const el = document.getElementById('streak-badge');
+  if (!el) return;
+  const me = getMe();
+  if (!me) { el.style.display = 'none'; return; }
+  const s = getStreak(me);
+  if (!s.current) { el.style.display = 'none'; return; }
+  el.style.display = '';
+  el.querySelector('.streak-num').textContent = s.current;
+}
+
 async function rollTodayForward() {
   const me = getMe();
   if (!me) return;
@@ -2553,12 +2762,16 @@ async function toggleTodayItem(id) {
   if (!it) return;
   // Check = delete (with undo). No strike-through, item is gone.
   haptic(18);
-  lastDeleted = { kind:'today', date, item: JSON.parse(JSON.stringify(it)) };
+  lastDeleted = { kind:'today', date, item: JSON.parse(JSON.stringify(it)), fromCheck: true };
   setTodayListData(date, list.filter(x => x.id !== id));
+  // Bump today's completion count (powers the ring) + streak
+  await incTodayDone(1);
+  const { hitMilestone } = await bumpStreak();
   render();
   await persistToday(date);
   doBurst();
   showUndoToast('✓ Done. Tap undo if wrong.');
+  if (hitMilestone) setTimeout(() => showStreakCelebration(hitMilestone), 600);
 }
 async function delTodayItem(id, dateOverride) {
   const date = dateOverride || todayISO();
@@ -2643,7 +2856,10 @@ let expandedPastDay = null;
 function renderToday() {
   const me = getMe();
   if (!me) return;
-  document.getElementById('today-who').textContent = '👤 ' + ME_LABELS[me] + "'s Today";
+  const greetings = { morning:'Good morning', afternoon:'Good afternoon', evening:'Good evening' };
+  const hr = new Date().getHours();
+  const tod = hr < 12 ? 'morning' : hr < 18 ? 'afternoon' : 'evening';
+  document.getElementById('today-who').textContent = greetings[tod] + ', ' + ME_LABELS[me].split(' ')[0] + '.';
   const dateObj = new Date();
   const wkday = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dateObj.getDay()];
   const mo = ['January','February','March','April','May','June','July','August','September','October','November','December'][dateObj.getMonth()];
@@ -2651,10 +2867,26 @@ function renderToday() {
 
   const date = todayISO();
   const items = getTodayList(date);
-  const done = items.filter(i => i.done).length;
-  const pct = items.length ? Math.round(done/items.length*100) : 0;
-  document.getElementById('today-prog-cnt').textContent = done + ' / ' + items.length + ' done';
-  document.getElementById('today-prog-fill').style.width = pct + '%';
+  const remaining = items.length;
+  const done = getTodayDoneCount(date, me);
+  const total = done + remaining;
+  const pct = total ? done/total : 0;
+  // Ring stroke: circumference = 2 * π * 36 ≈ 226.19
+  const CIRC = 226.19;
+  const prog = document.querySelector('#today-ring .ring-prog');
+  if (prog) prog.style.strokeDashoffset = (CIRC * (1 - pct)).toFixed(2);
+  const ringWrap = document.getElementById('today-ring');
+  if (ringWrap) ringWrap.classList.toggle('full', pct >= 1 && total > 0);
+  document.getElementById('today-ring-done').textContent = done;
+  document.getElementById('today-ring-total').textContent = total;
+  const subEl = document.getElementById('today-sub');
+  if (subEl) {
+    if (total === 0) subEl.textContent = 'Nothing on the list yet';
+    else if (remaining === 0) subEl.textContent = "All done. Nice work.";
+    else if (done === 0) subEl.textContent = remaining + (remaining === 1 ? ' goal to go' : ' goals to go');
+    else subEl.textContent = remaining + ' left';
+  }
+  renderStreakBadge();
 
   // Sort: not-done first, then alphabetical
   const sorted = items.slice().sort((a,b) => {
@@ -3477,6 +3709,12 @@ async function doUndo() {
       list.push(lastDeleted.item);
       setG('today', null, lastDeleted.date, me, list);
       await persistKey(skey('today', null, lastDeleted.date, me));
+      // Only today-check deletions decrement the done counter and may undo
+      // today's streak increment; manual deletes (via ✕) don't bump it.
+      if (lastDeleted.fromCheck) {
+        await incTodayDone(-1);
+        await maybeRevertStreakIfNothingDoneToday();
+      }
     }
   } else if (lastDeleted.kind === 'goal') {
     const {period, yr, sub, who, item} = lastDeleted;
@@ -4137,6 +4375,7 @@ document.addEventListener('click', function(e) {
   if (e.target.id === 'import-btn') { document.getElementById('import-file').click(); return; }
 
   if (e.target.id === 'toast-action') { doUndo(); return; }
+  if (e.target.id === 'streak-cel-btn' || e.target.id === 'streak-cel') { closeStreakCelebration(); return; }
 
   // Weekly Templates: open picker
   const tplPickerOpen = e.target.closest('[data-tpl-open-picker]');
@@ -4767,6 +5006,7 @@ async function init() {
     await rollTodayForward();
   }
   applyIdentityToSettings();
+  renderStreakBadge();
   render();
 
   // Wire budget who-select to toggle the custom-name input
