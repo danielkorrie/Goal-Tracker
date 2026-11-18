@@ -4271,15 +4271,30 @@ function stopVoice() {
 // Parse a transcript into {bucket, owner, text, pts}[].
 // Buckets: today | weekly | monthly | yearly | home
 // Owners:  daniel | chardae | together
+const VP_VERBS = "clean|clear|send|make|do|go|get|buy|call|write|email|text|finish|start|prep|prepare|cook|wash|pick|drop|visit|meet|pay|book|schedule|plan|review|check|update|add|read|run|work|fix|help|build|create|order|mop|sweep|vacuum|put|take|give|bring|drive|dust|organize|tidy|empty|fill|fold|iron|post|publish|respond|answer|edit|look|watch|study|learn|practice|design|save|host|host|try|move|wrap|drop|attend|record|walk";
+const VP_TIMEBUCKET = "today|tonight|tomorrow|later|weekly|this\\s+week|monthly|this\\s+month|yearly|this\\s+year|home";
+const VP_SPLIT = new RegExp(
+  '[.!?;,]' +
+  '|\\bthen\\b' +
+  '|\\balso\\b' +
+  '|\\bnext\\b' +
+  '|\\bplus\\b' +
+  "|\\band\\s+(?=(?:i|we|i'?ll|we'?ll|i'?m|for\\s+(?:us|me|her|him|the|our|my|daniel|chardae)\\b|" + VP_TIMEBUCKET + '|' + VP_VERBS + ')\\b)',
+  'gi'
+);
+
 function parseVoiceTranscript(raw) {
   if (!raw) return [];
   const me = getMe() || 'daniel';
   const partner = (me === 'daniel') ? 'chardae' : 'daniel';
 
-  // Normalize + split into small clauses on sentence/pause boundaries.
+  // Normalize + split into small clauses on sentence/pause boundaries,
+  // plus "and" when followed by a verb/pronoun/time-bucket (so natural
+  // speech like "clean the bathroom and clear the yard and send the themes"
+  // becomes 3 goals, while "pots and pans" stays one).
   const chunks = raw
     .replace(/\s+/g, ' ')
-    .split(/[.!?;,]|(?:\bthen\b)|(?:\balso\b)|(?:\bnext\b)/i)
+    .split(VP_SPLIT)
     .map(s => s.trim())
     .filter(Boolean);
 
@@ -4305,8 +4320,11 @@ function parseVoiceTranscript(raw) {
     else if (/\b(for me|i need|i want|i have to|i should|my goal|for myself)\b/.test(low)) owner = me;
     else if (/\bdaniel\b/.test(low)) owner = 'daniel';
 
+    // Reset owner when the bucket changes explicitly AND no explicit owner in this chunk.
+    // This prevents "together" from leaking from a prior "for us weekly" into a later "monthly".
+    if (bucket && bucket !== curBucket && !owner) curOwner = me;
     if (bucket) curBucket = bucket;
-    if (owner) curOwner = owner;
+    if (owner)  curOwner  = owner;
 
     // Strip bucket + owner keyword fragments. Only strip phrases that are unambiguous;
     // leave bare words like "together", "our", "home", "chardae", "daniel" alone
@@ -4314,7 +4332,8 @@ function parseVoiceTranscript(raw) {
     let clean = chunk
       .replace(/\b(this year|by the end of the year|end of year|yearly|this month|monthly|the month|this week|weekly|the week|for the week|today|tonight|this morning|this afternoon|this evening|for the house)\b/gi, '')
       .replace(/\b(for us|both of us|we need to|we should|we have to|we want to|my goal is to|my goal is|for me|i need to|i want to|i have to|i should|for myself|for her|she needs to|she wants to|she has to|her goal is|chardae needs to|chardae wants to|chardae and i)\b/gi, '')
-      .replace(/^(a|to|the|and|then|also|next|is|do|go|get|home)\s+/i, '')
+      .replace(/^(a|to|the|and|then|also|next|is|home|but|or|so)\s+/i, '')
+      .replace(/\s+(and|then|also|or|but|so|plus)$/i, '')
       .replace(/\s+/g, ' ')
       .trim();
 
